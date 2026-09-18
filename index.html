@@ -394,18 +394,76 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
 #home .dialog-board input{width:100%;padding:12px;margin:10px 0;border-radius:12px;border:2px solid #c5a789!important;background:#fffaf2!important;color:#3f3125!important;font-size:1.05rem}
 #home .dialog-board button,#home #create,#home #join,#home #onlineBack,#home #cancelRoom,#home .room-code{border-radius:12px;border:2px solid #8c6a4b!important;background:#a98563!important;color:#fffaf2!important;box-shadow:0 3px 8px rgba(73,52,35,.14)!important;outline:none!important}
 @media(max-height:760px){#home .brand-sign{margin-top:2vh;padding:16px 14px 12px}#home .brand-sign h1{font-size:2.5rem}#home .menu-board{margin-top:5vh}#home .menu-plank{min-height:78px;padding:12px 14px}}
+</style><style id="home-minimal-v2">
+#home{min-height:100dvh!important;background:#efe7db!important;overflow:auto!important;padding:0!important}
+#home .soft-home{min-height:100dvh!important;width:min(100%,520px)!important;margin:0 auto!important;padding:42px 20px 30px!important;background:linear-gradient(to bottom,#f7f1e8 0%,#eadfce 64%,#d6c0a4 100%)!important;display:flex!important;flex-direction:column!important}
+#home .soft-brand{padding:28px 18px 14px!important;text-align:center!important}
+#home .soft-brand h1{margin:0!important;color:#4a382b!important;text-shadow:none!important;font-size:clamp(2.7rem,11vw,4rem)!important;letter-spacing:-.05em!important;line-height:1!important}
+#home .soft-brand p{margin:12px auto 0!important;max-width:310px!important;color:#806d5d!important;font-size:1rem!important;font-weight:650!important;line-height:1.4!important}
+#home .soft-menu{margin:11vh auto 0!important;width:min(100%,430px)!important;display:grid!important;gap:14px!important}
+#home .soft-choice{appearance:none!important;width:100%!important;min-height:88px!important;border:1px solid #cdb89f!important;border-radius:18px!important;background:#fffaf3!important;box-shadow:0 5px 16px rgba(83,62,43,.08)!important;padding:14px 16px!important;display:grid!important;grid-template-columns:48px 1fr 22px!important;align-items:center!important;gap:13px!important;text-align:left!important;color:#443428!important}
+#home .soft-choice:active{transform:translateY(1px)!important}
+#home .soft-choice-icon{width:44px!important;height:44px!important;border-radius:14px!important;background:#e5d4bf!important;display:grid!important;place-items:center!important;color:#684f3b!important;font-size:1.25rem!important;font-weight:900!important}
+#home .soft-choice-copy b{display:block!important;font-size:1.22rem!important;color:#443428!important}
+#home .soft-choice-copy small{display:block!important;margin-top:4px!important;color:#8b7765!important;font-size:.84rem!important;font-weight:650!important}
+#home .soft-choice-arrow{font-size:1.7rem!important;color:#aa947f!important}
+#home .soft-panel{width:min(100%,430px)!important;margin:8vh auto 0!important;background:#fffaf3!important;border:1px solid #cdb89f!important;border-radius:20px!important;box-shadow:0 8px 24px rgba(83,62,43,.10)!important;padding:22px!important;text-align:center!important;color:#443428!important}
+#home .soft-panel h2{margin:4px 0 18px!important;color:#443428!important}
+#home .soft-panel p{color:#816f5e!important}
+#home .soft-panel input{width:100%!important;height:54px!important;border:1px solid #c7b39b!important;border-radius:13px!important;background:#fff!important;color:#443428!important;text-align:center!important;font-size:1.2rem!important;font-weight:850!important;letter-spacing:.18em!important;text-transform:uppercase!important;padding:0 12px!important}
+#home .soft-primary,#home .soft-secondary,#home .soft-code{width:100%!important;min-height:50px!important;border-radius:13px!important;border:1px solid #9f8062!important;font-weight:850!important;font-size:1rem!important}
+#home .soft-primary{background:#8c6f54!important;color:#fffaf3!important}
+#home .soft-secondary{margin-top:10px!important;background:#efe2d1!important;color:#503d2f!important}
+#home .soft-code{margin:8px 0!important;background:#f5eadc!important;color:#5a4332!important;font-size:1.7rem!important;letter-spacing:.2em!important}
+#home .soft-back{border:0!important;background:transparent!important;color:#8a6d55!important;font-weight:750!important;font-size:.95rem!important}
+#home .soft-divider{margin:16px 0!important;color:#aa9681!important;font-size:.82rem!important}
+#home .soft-label{display:block!important;text-align:left!important;margin:0 0 7px!important;color:#6f5a47!important;font-size:.82rem!important;font-weight:750!important}
+#home .soft-waiting{margin-top:18px!important;padding:10px!important;border-radius:12px!important;background:#eee4d6!important}
+#home .soft-message{min-height:22px!important;margin-top:10px!important;color:#a24337!important;font-weight:750!important}
+@media(max-height:760px){#home .soft-home{padding-top:24px!important}.soft-brand{padding-top:18px!important}#home .soft-menu{margin-top:6vh!important}}
 </style></head>
 <body><main class="app">
-<section id="home"><div class="scene">
-  <header class="brand-sign"><div class="owl">●◡●</div><h1>Ordduellen</h1><p>Små ord. Stora utmaningar!</p></header>
-  <div id="mainMenu" class="menu-board">
-    <button id="soloStart" class="menu-plank"><span class="menu-icon">♟</span><span><b>Spela själv</b><small>Hitta så många ord som möjligt!</small></span><i>›</i></button>
-    <button id="onlineStart" class="menu-plank"><span class="menu-icon">⚔</span><span><b>Spela online</b><small>Utmana en vän i realtid!</small></span><i>›</i></button>
+<section id="home">
+  <div class="soft-home">
+    <header class="soft-brand">
+      <h1>Ordduellen</h1>
+      <p>Hitta ord. Utmana dig själv eller en vän.</p>
+    </header>
+
+    <div id="mainMenu" class="soft-menu">
+      <button id="soloStart" class="soft-choice">
+        <span class="soft-choice-icon">A</span>
+        <span class="soft-choice-copy"><b>Spela själv</b><small>Hitta så många ord du kan</small></span>
+        <span class="soft-choice-arrow">›</span>
+      </button>
+      <button id="onlineStart" class="soft-choice">
+        <span class="soft-choice-icon">↔</span>
+        <span class="soft-choice-copy"><b>Spela online</b><small>Skapa ett rum och bjud in en vän</small></span>
+        <span class="soft-choice-arrow">›</span>
+      </button>
+    </div>
+
+    <div id="onlinePanel" class="soft-panel hidden">
+      <button id="onlineBack" class="soft-back">‹ Tillbaka</button>
+      <h2>Spela online</h2>
+      <button id="create" class="soft-primary">Skapa rum</button>
+      <div class="soft-divider">eller</div>
+      <label class="soft-label" for="roomCode">Anslut med kod</label>
+      <input id="roomCode" maxlength="5" autocomplete="off" autocapitalize="characters" placeholder="QKS4G">
+      <button id="join" class="soft-secondary">Anslut</button>
+      <div id="homeMsg" class="soft-message"></div>
+    </div>
+
+    <div id="createdRoom" class="soft-panel hidden">
+      <h2>Rummet är skapat</h2>
+      <p>Dela koden med din vän</p>
+      <button id="createdCode" class="soft-code">-----</button>
+      <small>Tryck på koden för att kopiera</small>
+      <p class="soft-waiting">Väntar på spelare 2…</p>
+      <button id="cancelRoom" class="soft-back">Avbryt</button>
+    </div>
   </div>
-  <div id="onlinePanel" class="dialog-board hidden"><button id="onlineBack">‹ Tillbaka</button><h2>Spela online</h2><button id="create" class="menu-plank"><b>＋ Skapa rum</b><small>Få en kod att dela med en vän</small></button><div class="join-box"><b>Anslut till rum</b><input id="roomCode" maxlength="5" autocomplete="off" autocapitalize="characters" placeholder="QKS4G"><button id="join">Anslut</button></div><div id="homeMsg"></div></div>
-  <div id="createdRoom" class="dialog-board hidden"><h2>Rummet är skapat!</h2><p>Skicka koden till din vän</p><button id="createdCode" class="room-code">-----</button><small>Tryck på koden för att kopiera</small><p>● Väntar på spelare 2…</p><button id="cancelRoom">Avbryt</button></div>
-  <div class="loose-tiles" aria-hidden="true"><i>R</i><i>A</i><i>S</i><i>K</i><i>O</i><i>M</i><i>E</i></div>
-</div></section>
+</section>
 <section id="game" class="hidden"><div class="play-scene">
   <header class="score-header"><div class="game-logo">Ordduellen</div></header>
   <div id="roomInfo" class="hidden"><span id="code"></span></div>
