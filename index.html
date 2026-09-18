@@ -224,6 +224,31 @@ button,input,.pill,.turn,.history,.word,.online-sheet,.room-code{font-family:inh
 #game .tile{border:4px solid #f8e9cd!important;outline:3px solid #593921!important}
 #game .tile.center{border:5px solid #ffd75b!important;outline:3px solid #73480d!important}
 @media(max-width:420px){#game .corner-score{width:68px!important;height:62px!important}#game .corner-score b{font-size:1.75rem!important}}
+</style><style id="reference-match-v18">
+/* Override accumulated legacy CSS and match the approved illustrated mockup more closely */
+#game{background:
+linear-gradient(#ffffff20,#ffffff08),
+radial-gradient(ellipse at 50% 56%,#7ca96d 0 22%,transparent 23%),
+linear-gradient(180deg,#b9d9a9 0 31%,#75a887 31% 61%,#527a4e 61% 100%)!important}
+#game .game-top{grid-template-columns:74px 1fr 74px!important;gap:8px!important}
+#game .game-top h1{font-size:clamp(1.65rem,6vw,2.15rem)!important;border-radius:13px!important}
+#game .corner-score{position:relative!important;width:72px!important;height:72px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;border-radius:12px!important;background:linear-gradient(#f7d38e,#e6aa58)!important}
+#game .corner-score .score-icon{font-size:1rem!important;line-height:1!important;color:#254d3d!important}
+#game .corner-score b{font-size:2rem!important;line-height:1!important}
+#game .corner-score:before{display:none!important}
+#game .possible-pill{border-radius:9px!important;padding:7px 16px!important}
+#game .turn{border-radius:8px!important}
+#game .board{border-radius:50%!important;background:#a86232!important;border:9px solid #60381f!important}
+#game .board:before{background:conic-gradient(from -30deg,#b8733d 0 59deg,#5c351e 59deg 61deg,#a95f30 61deg 119deg,#5c351e 119deg 121deg,#bd7940 121deg 179deg,#5c351e 179deg 181deg,#a75d2d 181deg 239deg,#5c351e 239deg 241deg,#bd7940 241deg 299deg,#5c351e 299deg 301deg,#a65d2f 301deg 360deg)!important}
+#game .tile{border-radius:10px 10px 28px 28px!important;background:linear-gradient(#fffdf5,#eee1c9)!important;border:4px solid #fff5dd!important;outline:3px solid #67462e!important}
+#game .tile.center{border-radius:50%!important;background:linear-gradient(#ffe55b,#f6ba23)!important}
+#game .history{background:linear-gradient(#ffedc4,#f0ce8c)!important;border-radius:8px!important}
+#game .game-actions{gap:8px!important}
+#game .game-actions .btn{border-radius:9px!important;border:4px solid #5a321d!important;outline:2px solid #302017!important;box-shadow:inset 0 2px #efae6d,0 5px 0 #442719!important}
+#game .shuffle-btn{background:linear-gradient(#a96131,#7b421f)!important}
+#game .clear-btn{background:linear-gradient(#d85d49,#a8382e)!important}
+#game .submit-btn{background:linear-gradient(#54884b,#2e6639)!important}
+#game .sub{color:#443629!important;background:#f8e5bce8!important;border-color:#714a2d!important}
 </style></head>
 <body><main class="app"><section id="home"><div class="home-scene">
 <div class="wood-logo"><strong>Ordduellen</strong><span>Små ord. Stora utmaningar!</span></div>
@@ -235,7 +260,7 @@ button,input,.pill,.turn,.history,.word,.online-sheet,.room-code{font-family:inh
 <div id="onlinePanel" class="online-sheet hidden"><button id="onlineBack" class="mini-back">‹ Tillbaka</button><h2>Spela online</h2><button id="create" class="big-choice"><span>＋</span><div><b>Skapa rum</b><small>Få en kod att dela med en vän</small></div></button><div class="or"><span>ELLER</span></div><div class="join-box"><b>Anslut till rum</b><small>Skriv koden du fått</small><input id="roomCode" maxlength="5" autocomplete="off" autocapitalize="characters" placeholder="T.EX. QKS4G"><button id="join" class="btn primary">Anslut</button></div><div id="homeMsg" class="home-message"></div></div>
 <div id="createdRoom" class="online-sheet hidden room-created"><span class="success-icon">✓</span><h2>Rummet är skapat!</h2><p>Skicka koden till din vän</p><button id="createdCode" class="room-code">-----</button><small>Tryck på koden för att kopiera</small><div class="waiting-dot">● Väntar på spelare 2…</div><button id="cancelRoom" class="text-btn">Avbryt</button></div>
 <div class="home-footer">🦉 <b>Ord gör världen större!</b></div></div></section>
-<section id="game" class="hidden"><div class="game-top"><span class="corner-score me">Du <b id="myScore">0</b></span><h1>Ordduellen</h1><span class="corner-score them">Motståndare <b id="otherScore">0</b></span></div><div id="roomInfo" class="room hidden" aria-hidden="true"><span id="code" class="code"></span></div><div class="stats"><span class="pill possible-pill">Kvar att hitta: <b id="possibleCount">20+</b></span></div><div id="turn" class="turn"></div><p class="sub">Mittenbokstaven måste användas · minst 4 bokstäver</p><div id="board" class="board"></div><div id="word" class="word"></div><div id="msg" class="msg"></div><div id="history" class="history hidden"><b>📖 Lagda ord <span id="historyCount">(0)</span></b><div id="historyWords"></div></div><div class="actions game-actions"><button id="shuffle" class="btn shuffle-btn">↝ Blanda</button><button id="clear" class="btn clear-btn">🗑 Rensa</button><button id="submit" class="btn primary submit-btn">➤ Lägg ord</button></div><button id="back" class="btn secondary">Till startsidan</button></section></main>
+<section id="game" class="hidden"><div class="game-top"><span class="corner-score me" aria-label="Din poäng"><span class="score-icon">●</span><b id="myScore">0</b></span><h1>Ordduellen</h1><span class="corner-score them" aria-label="Motståndarens poäng"><span class="score-icon">◆</span><b id="otherScore">0</b></span></div><div id="roomInfo" class="room hidden" aria-hidden="true"><span id="code" class="code"></span></div><div class="stats"><span class="pill possible-pill">Kvar att hitta: <b id="possibleCount">20+</b></span></div><div id="turn" class="turn"></div><p class="sub">Mittenbokstaven måste användas · minst 4 bokstäver</p><div id="board" class="board"></div><div id="word" class="word"></div><div id="msg" class="msg"></div><div id="history" class="history hidden"><b>📖 Lagda ord <span id="historyCount">(0)</span></b><div id="historyWords"></div></div><div class="actions game-actions"><button id="shuffle" class="btn shuffle-btn">↝ Blanda</button><button id="clear" class="btn clear-btn">🗑 Rensa</button><button id="submit" class="btn primary submit-btn">➤ Lägg ord</button></div><button id="back" class="btn secondary">Till startsidan</button></section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 const SB_URL="https://vihncukhitijhrvgvonw.supabase.co",SB_KEY="sb_publishable_cekFLm639kSdmlifG7YFWw_O-EFse4C",sb=supabase.createClient(SB_URL,SB_KEY);
 const puzzles=[{id:10,l:"AKRTSPE",n:20},{id:3,l:"OSKLBAR",n:20},{id:5,l:"ÖGRNSAK",n:20},{id:9,l:"ISKRFTE",n:20},{id:8,l:"ÄFRSKOS",n:20}];let puzzle=null;let letters=[],selected=[],room=null,player=1,channel=null,mode="solo",soloScore=0;
