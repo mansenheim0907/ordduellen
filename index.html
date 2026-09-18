@@ -331,6 +331,12 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
   #game .word-book{max-height:125px!important;min-height:88px!important}
   #game .message{bottom:82px!important}
 }
+</style><style id="no-score-header-v22">
+#game .score-header{display:block!important;width:min(100%,440px)!important;margin:0 auto!important}
+#game .score-header .game-logo{width:min(82%,320px)!important;margin:0 auto!important}
+#game .score-card{display:none!important}
+#game .word-book{max-height:230px!important;min-height:145px!important}
+@media(max-height:760px){#game .word-book{max-height:155px!important;min-height:105px!important}}
 </style></head>
 <body><main class="app">
 <section id="home"><div class="scene">
@@ -344,7 +350,7 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
   <div class="loose-tiles" aria-hidden="true"><i>R</i><i>A</i><i>S</i><i>K</i><i>O</i><i>M</i><i>E</i></div>
 </div></section>
 <section id="game" class="hidden"><div class="play-scene">
-  <header class="score-header"><div class="score-card me"><span>♟</span><b id="myScore">0</b></div><div class="game-logo">Ordduellen</div><div class="score-card them"><span>◆</span><b id="otherScore">0</b></div></header>
+  <header class="score-header"><div class="game-logo">Ordduellen</div></header>
   <div id="roomInfo" class="hidden"><span id="code"></span></div>
   <div class="remaining-board">Kvar att hitta: <b id="possibleCount">20+</b></div>
   <div id="turn" class="turn-board"></div>
@@ -362,7 +368,7 @@ const $=id=>document.getElementById(id),uid=()=>crypto.randomUUID(),clientId=uid
 function makeLetters(s){const a=[...s],center=a.shift();a.sort(()=>Math.random()-.5);return[center,...a.slice(0,6)]}
 function showGame(){ $("home").classList.add("hidden");$("game").classList.remove("hidden");$("possibleCount").textContent=puzzle?puzzle.n:"20+";render()}
 function remainingWords(){const total=puzzle?puzzle.n:20;if(mode==="solo")return Math.max(0,total-soloScore);if(room){const mine=player===1?room.host_score:room.guest_score;return Math.max(0,total-mine)}return total}
-function render(){if($("possibleCount"))$("possibleCount").textContent=remainingWords();const b=$("board");b.innerHTML="";letters.forEach((l,i)=>{const e=document.createElement("button");e.className="letter-piece p"+i+(i===0?" center":"")+(selected.includes(i)?" selected":"");e.textContent=l;e.disabled=mode==="online"&&(!room||room.status!=="playing"||room.current_player!==player);e.onclick=()=>{selected.includes(i)?selected=selected.filter(x=>x!==i):selected.push(i);render()};b.appendChild(e)});(()=>{const e=$("word");if(e)e.textContent=selected.map(i=>letters[i]).join("")})();if(mode==="solo"){$("history").classList.remove("hidden");$("historyCount").textContent="("+soloPlayed.length+")";$("historyWords").innerHTML=soloPlayed.length?soloPlayed.map((w,i)=>'<span class="history-word"><b>'+(i+1)+'.</b>&nbsp; '+w.toUpperCase()+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';$("turn").textContent="Spela fritt";$("myScore").textContent=soloScore;$("otherScore").textContent="–"}else if(room){$("history").classList.remove("hidden");const pw=Array.isArray(room.played_words)?room.played_words:[];$("historyCount").textContent="("+pw.length+")";$("historyWords").innerHTML=pw.length?pw.map(x=>'<span class="history-word p'+x.player+'">'+x.word.toUpperCase()+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';$("myScore").textContent=player===1?room.host_score:room.guest_score;$("otherScore").textContent=player===1?room.guest_score:room.host_score;$("turn").textContent=room.status==="waiting"?"Väntar på spelare 2…":room.current_player===player?"Din tur":"Motståndarens tur"}}
+function render(){if($("possibleCount"))$("possibleCount").textContent=remainingWords();const b=$("board");b.innerHTML="";letters.forEach((l,i)=>{const e=document.createElement("button");e.className="letter-piece p"+i+(i===0?" center":"")+(selected.includes(i)?" selected":"");e.textContent=l;e.disabled=mode==="online"&&(!room||room.status!=="playing"||room.current_player!==player);e.onclick=()=>{selected.includes(i)?selected=selected.filter(x=>x!==i):selected.push(i);render()};b.appendChild(e)});(()=>{const e=$("word");if(e)e.textContent=selected.map(i=>letters[i]).join("")})();if(mode==="solo"){$("history").classList.remove("hidden");$("historyCount").textContent="("+soloPlayed.length+")";$("historyWords").innerHTML=soloPlayed.length?soloPlayed.map((w,i)=>'<span class="history-word"><b>'+(i+1)+'.</b>&nbsp; '+w.toUpperCase()+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';$("turn").textContent="Spela fritt";$("myScore")&&($("myScore").textContent=soloScore);$("otherScore").textContent="–"}else if(room){$("history").classList.remove("hidden");const pw=Array.isArray(room.played_words)?room.played_words:[];$("historyCount").textContent="("+pw.length+")";$("historyWords").innerHTML=pw.length?pw.map(x=>'<span class="history-word p'+x.player+'">'+x.word.toUpperCase()+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';$("myScore").textContent=player===1?room.host_score:room.guest_score;$("otherScore").textContent=player===1?room.guest_score:room.host_score;$("turn").textContent=room.status==="waiting"?"Väntar på spelare 2…":room.current_player===player?"Din tur":"Motståndarens tur"}}
 function pickPuzzle(){puzzle=puzzles[Math.floor(Math.random()*puzzles.length)];return makeLetters(puzzle.l)} function localStart(){mode="solo";letters=pickPuzzle();soloScore=0;soloPlayed=[];selected=[];showGame()}
 $("soloStart").onclick=localStart;
 $("onlineStart").onclick=()=>{$("mainMenu").classList.add("hidden");$("onlinePanel").classList.remove("hidden")};
