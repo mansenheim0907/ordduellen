@@ -734,6 +734,40 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
 #game #timers.timer-strip.hidden{
   display:none!important;
 }
+</style><style id="how-to-play-v32">
+#home .how-to-play{
+  width:100%!important;
+  margin-top:4px!important;
+  border:1px solid #d5c0aa!important;
+  border-radius:16px!important;
+  background:rgba(255,249,241,.82)!important;
+  overflow:hidden!important;
+}
+#home .how-to-play summary{
+  list-style:none!important;
+  cursor:pointer!important;
+  padding:14px 16px!important;
+  color:#4f3c30!important;
+  font-weight:800!important;
+  font-size:1rem!important;
+}
+#home .how-to-play summary::-webkit-details-marker{display:none!important}
+#home .how-to-play summary:after{
+  content:"＋"!important;
+  float:right!important;
+  color:#9b826d!important;
+  font-weight:700!important;
+}
+#home .how-to-play[open] summary:after{content:"−"!important}
+#home .how-to-play-body{
+  padding:0 16px 14px!important;
+  color:#7a6859!important;
+  font-size:.88rem!important;
+  line-height:1.45!important;
+}
+#home .how-to-play-body p{
+  margin:8px 0!important;
+}
 </style></head>
 <body><main class="app">
 <section id="home">
@@ -754,6 +788,16 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
         <span class="soft-choice-copy"><b>Spela online</b><small>Skapa ett rum och bjud in en vän</small></span>
         <span class="soft-choice-arrow">›</span>
       </button>
+
+      <details class="how-to-play">
+        <summary>Så spelar man</summary>
+        <div class="how-to-play-body">
+          <p>Bygg ord av de sju bokstäverna.</p>
+          <p>Mittenbokstaven måste alltid vara med och varje bokstav får bara användas en gång.</p>
+          <p>Orden måste vara minst fyra bokstäver långa.</p>
+          <p>I onlineläge turas spelarna om. Varje spelare har totalt fem minuter som bara räknas under den egna turen.</p>
+        </div>
+      </details>
     </div>
 
     <div id="onlinePanel" class="soft-panel hidden">
