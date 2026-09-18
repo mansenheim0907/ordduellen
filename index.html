@@ -497,6 +497,122 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
 #game #back:active{
   transform:translateY(1px)!important;
 }
+</style><style id="home-warm-clean-v4">
+#home,#home::before,#home::after{background-image:none!important}
+#home{
+  min-height:100dvh!important;
+  background:linear-gradient(to bottom,#f3e7d8 0%,#e7d4bf 48%,#d8bea1 100%)!important;
+  overflow:auto!important;
+  padding:0!important;
+}
+#home .soft-home{
+  min-height:100dvh!important;
+  width:min(100%,520px)!important;
+  margin:0 auto!important;
+  padding:36px 22px 28px!important;
+  background:transparent!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+#home .soft-brand{
+  padding:28px 12px 10px!important;
+  text-align:center!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#home .soft-brand h1{
+  margin:0!important;
+  font-size:clamp(2.8rem,11vw,4rem)!important;
+  line-height:1!important;
+  letter-spacing:-.05em!important;
+  color:#4f3c30!important;
+  text-shadow:none!important;
+}
+#home .soft-brand p{
+  margin:12px auto 0!important;
+  max-width:320px!important;
+  color:#7a6859!important;
+  font-size:1rem!important;
+  font-weight:650!important;
+  line-height:1.4!important;
+}
+#home .soft-menu{
+  width:min(100%,430px)!important;
+  margin:9vh auto 0!important;
+  display:grid!important;
+  gap:14px!important;
+}
+#home .soft-choice{
+  width:100%!important;
+  min-height:90px!important;
+  display:grid!important;
+  grid-template-columns:50px 1fr 24px!important;
+  align-items:center!important;
+  gap:14px!important;
+  padding:16px 18px!important;
+  border-radius:20px!important;
+  background:rgba(255,249,241,.94)!important;
+  border:1px solid #d5c0aa!important;
+  box-shadow:0 6px 18px rgba(84,61,43,.07)!important;
+  color:#47362a!important;
+}
+#home .soft-choice-icon{
+  width:44px!important;
+  height:44px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:50%!important;
+  background:#eadbcc!important;
+  color:#6d5948!important;
+  font-size:1.2rem!important;
+  font-weight:800!important;
+}
+#home .soft-choice-copy b{
+  display:block!important;
+  color:#47362a!important;
+  font-size:1.28rem!important;
+  font-weight:800!important;
+}
+#home .soft-choice-copy small{
+  display:block!important;
+  margin-top:4px!important;
+  color:#8a7766!important;
+  font-size:.85rem!important;
+  font-weight:650!important;
+  line-height:1.35!important;
+}
+#home .soft-choice-arrow{
+  color:#a18b77!important;
+  font-size:1.55rem!important;
+}
+#home .soft-panel{
+  width:min(100%,430px)!important;
+  margin:7vh auto 0!important;
+  padding:22px!important;
+  background:rgba(255,249,241,.97)!important;
+  border:1px solid #d5c0aa!important;
+  border-radius:20px!important;
+  box-shadow:0 8px 24px rgba(84,61,43,.09)!important;
+  color:#47362a!important;
+}
+#home .soft-panel h2{margin:4px 0 16px!important;color:#47362a!important}
+#home .soft-panel p,#home .soft-panel small,#home .soft-label,#home .soft-divider,#home .soft-waiting{color:#7b6859!important}
+#home .soft-panel input{
+  width:100%!important;height:54px!important;margin:10px 0!important;padding:0 12px!important;
+  border-radius:14px!important;border:1px solid #ccb49d!important;background:#fffdf9!important;
+  color:#47362a!important;text-align:center!important;font-size:1.15rem!important;font-weight:800!important;
+  letter-spacing:.18em!important;text-transform:uppercase!important;
+}
+#home .soft-primary,#home .soft-secondary,#home .soft-code,#home .soft-back{
+  border-radius:14px!important;border:1px solid #b3967a!important;box-shadow:none!important;
+}
+#home .soft-primary{background:#8f755d!important;color:#fffaf4!important}
+#home .soft-secondary,#home .soft-code{background:#efe4d6!important;color:#4f3c30!important}
+#home .soft-back{background:transparent!important;color:#8a735f!important;border:0!important}
+#home .soft-message{min-height:22px!important;margin-top:10px!important;color:#a44435!important;font-weight:700!important}
+#home .loose-tiles,#home .home-wheel,#home .home-slogan,#home .home-footer,#home .owl,
+#home [class*="tile"],#home [class*="wheel"]{display:none!important}
 </style></head>
 <body><main class="app">
 <section id="home">
@@ -508,12 +624,12 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
 
     <div id="mainMenu" class="soft-menu">
       <button id="soloStart" class="soft-choice">
-        <span class="soft-choice-icon">A</span>
+        <span class="soft-choice-icon">•</span>
         <span class="soft-choice-copy"><b>Spela själv</b><small>Hitta så många ord du kan</small></span>
         <span class="soft-choice-arrow">›</span>
       </button>
       <button id="onlineStart" class="soft-choice">
-        <span class="soft-choice-icon">↔</span>
+        <span class="soft-choice-icon">○</span>
         <span class="soft-choice-copy"><b>Spela online</b><small>Skapa ett rum och bjud in en vän</small></span>
         <span class="soft-choice-arrow">›</span>
       </button>
