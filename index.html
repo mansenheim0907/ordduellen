@@ -8,17 +8,20 @@
 <div class="actions"><button class="secondary" id="clear">Rensa</button><button class="primary" id="submit">Godkänn ord</button><button class="secondary" id="new">Ny spelplan</button></div>
 <section class="found"><h2>Dina hittade ord</h2><div id="words" class="words">Inga ännu.</div></section></main>
 <script>
-const sets=["ARENSKILT","ORENSTADI","EKARSLUTN","INRETSKAL","ARBETSLIN"];
-const DICT_URL="https://raw.githubusercontent.com/martinlindhe/wordlist_swedish/master/swe_wordlist";
-let letters=[],selected=[],found=new Set(),dictionary=[],validWords=[];
-const board=document.querySelector("#board"),word=document.querySelector("#word"),score=document.querySelector("#score"),words=document.querySelector("#words"),message=document.querySelector("#message"),possible=document.querySelector("#possible");
+const games=[
+{letters:"ARENSKILT",words:["akter","aktie","akter","lista","rensa","rista","saker","sakta","skina","stark","steka","sten","tanke","tina"]},
+{letters:"ORENSTADI",words:["andra","andet","dator","rasta","reda","rena","rida","rista","rosta","sanda","sena","sida","snart","sten","tand","tina"]},
+{letters:"EKARSLUTN",words:["akter","kanel","karta","kasta","klara","lasta","lunta","rensa","saker","sakta","skala","stark","steka","sten","tanke"]},
+{letters:"INRETSKAL",words:["akter","lista","rasta","rensa","rista","saker","sakta","skena","skina","stark","steka","sten","tanke","tina"]},
+{letters:"ARBETSLIN",words:["alster","artist","bilar","brant","lista","rasta","rensa","rista","saker","sakta","sena","stark","sten","tanke","tina"]}
+];
+let letters=[],selected=[],found=new Set(),validWords=[];
+const board=document.getElementById("board"),word=document.getElementById("word"),score=document.getElementById("score"),words=document.getElementById("words"),message=document.getElementById("message"),possible=document.getElementById("possible");
 function canBuild(w){if(w.length<4||!w.includes(letters[0].toLowerCase()))return false;const pool=letters.map(x=>x.toLowerCase());for(const ch of w){const i=pool.indexOf(ch);if(i<0)return false;pool.splice(i,1)}return true}
-function calculateWords(){validWords=dictionary.filter(canBuild);possible.textContent=validWords.length}
-function newBoard(){const s=sets[Math.floor(Math.random()*sets.length)].split("");const center=s.shift();s.sort(()=>Math.random()-.5);letters=[center,...s.slice(0,8)];selected=[];found.clear();message.textContent="";possible.textContent=dictionary.length?"räknar…":"laddar…";render();if(dictionary.length)calculateWords()}
-function render(){board.innerHTML="";letters.forEach((l,i)=>{const b=document.createElement("button");b.className="tile p"+i+(i===0?" center":"")+(selected.includes(i)?" selected":"");b.textContent=l;b.onclick=()=>{if(selected.includes(i))selected=selected.filter(x=>x!==i);else selected.push(i);message.textContent="";render()};board.appendChild(b)});word.textContent=selected.map(i=>letters[i]).join("");score.textContent=found.size;words.innerHTML=found.size?[...found].map(w=>'<span class="tag">'+w+'</span>').join(""):"Inga ännu."}
-document.querySelector("#clear").onclick=()=>{selected=[];message.textContent="";render()};
-document.querySelector("#new").onclick=newBoard;
-document.querySelector("#submit").onclick=()=>{const w=selected.map(i=>letters[i]).join("").toLowerCase();if(!selected.includes(0)){message.textContent="Mittenbokstaven måste vara med.";return}if(w.length<4){message.textContent="Ord måste vara minst fyra bokstäver.";return}if(dictionary.length&&!validWords.includes(w)){message.textContent="Ordet finns inte i ordlistan.";return}if(found.has(w)){message.textContent="Det ordet har du redan hittat.";return}found.add(w);selected=[];message.textContent="Ord registrerat!";render()};
-async function loadDictionary(){try{const r=await fetch(DICT_URL);if(!r.ok)throw new Error("HTTP "+r.status);dictionary=(await r.text()).split(/\r?\n/).map(w=>w.trim().toLowerCase()).filter(w=>/^[a-zåäö]+$/.test(w)&&w.length>=4&&w.length<=9);calculateWords()}catch(e){possible.textContent="–";message.textContent="Ordlistan kunde inte laddas."}}
-newBoard();loadDictionary();
+function newBoard(){const g=games[Math.floor(Math.random()*games.length)],s=[...g.letters],center=s.shift();s.sort(()=>Math.random()-.5);letters=[center,...s.slice(0,8)];validWords=[...new Set(g.words)].filter(canBuild);selected=[];found.clear();message.textContent="";possible.textContent=validWords.length;render()}
+function render(){board.innerHTML="";letters.forEach((l,i)=>{const el=document.createElement("button");el.type="button";el.className="tile p"+i+(i===0?" center":"")+(selected.includes(i)?" selected":"");el.textContent=l;el.addEventListener("click",()=>{selected.includes(i)?selected=selected.filter(x=>x!==i):selected.push(i);message.textContent="";render()});board.appendChild(el)});word.textContent=selected.map(i=>letters[i]).join("");score.textContent=found.size;words.innerHTML=found.size?[...found].map(w=>'<span class="tag">'+w+'</span>').join(""):"Inga ännu."}
+document.getElementById("clear").onclick=()=>{selected=[];message.textContent="";render()};
+document.getElementById("new").onclick=newBoard;
+document.getElementById("submit").onclick=()=>{const w=selected.map(i=>letters[i]).join("").toLowerCase();if(!selected.includes(0)){message.textContent="Mittenbokstaven måste vara med.";return}if(w.length<4){message.textContent="Ord måste vara minst fyra bokstäver.";return}if(!validWords.includes(w)){message.textContent="Ordet finns inte i ordlistan.";return}if(found.has(w)){message.textContent="Det ordet har du redan hittat.";return}found.add(w);selected=[];message.textContent="Ord registrerat!";render()};
+newBoard();
 </script></body></html>
