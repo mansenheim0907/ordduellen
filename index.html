@@ -350,6 +350,33 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
 #game .play-scene:before{
   display:none!important;
 }
+</style><style id="word-validation-and-selection-v24">
+#game .letter-piece.selected{
+  background:linear-gradient(#5f9a57,#2f683b)!important;
+  color:#fff9e8!important;
+  border-color:#f5d16d!important;
+  outline:5px solid #234f31!important;
+  box-shadow:0 0 0 5px #f1c95a,0 7px 0 #1d452a,0 10px 18px #2b201966!important;
+  transform:translate(-50%,-50%) scale(1.08)!important;
+  z-index:6!important;
+}
+#game .letter-piece.center.selected{
+  background:linear-gradient(#5f9a57,#2f683b)!important;
+  color:#fff9e8!important;
+  border-color:#f5d16d!important;
+  outline:5px solid #234f31!important;
+}
+#game .message.error{
+  color:#7b1f17!important;
+  background:#ffe2d7!important;
+  border-color:#a13b2e!important;
+  box-shadow:0 4px #6d2a21!important;
+}
+#game .message.success{
+  color:#1d5a35!important;
+  background:#e8f3d7!important;
+  border-color:#4b7442!important;
+}
 </style></head>
 <body><main class="app">
 <section id="home"><div class="scene">
@@ -376,7 +403,12 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
 </div></section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 const SB_URL="https://vihncukhitijhrvgvonw.supabase.co",SB_KEY="sb_publishable_cekFLm639kSdmlifG7YFWw_O-EFse4C",sb=supabase.createClient(SB_URL,SB_KEY);
-const puzzles=[{id:10,l:"AKRTSPE",n:20},{id:3,l:"OSKLBAR",n:20},{id:5,l:"ÖGRNSAK",n:20},{id:9,l:"ISKRFTE",n:20},{id:8,l:"ÄFRSKOS",n:20}];let puzzle=null;let letters=[],selected=[],room=null,player=1,channel=null,mode="solo",soloScore=0;
+const puzzles=[
+{id:3,l:"OSKLBAR",n:28,v:["balsko","boka","brosk","kaos","karbol","klor","kobra","kola","kora","koral","kors","korsa","kosa","loska","oklar","oral","orka","orsak","rosa","skol","skola","slok","sloka","sola","solka","sork","sorl","sorla"]},
+{id:5,l:"ÖGRNSAK",n:26,v:["angörs","göka","göra","grön","grönas","grönsak","grönska","knös","köra","krön","kröna","ögna","önska","öskar","röka","rökgas","röna","skön","sköna","skör","skröna","snöa","snör","snöra","söka","sökar"]},
+{id:9,l:"ISKRFTE",n:30,v:["etik","etisk","fiser","fisk","fiske","fris","frisk","frist","frites","iste","ister","kefir","kite","kreti","kris","krit","rike","rikt","risk","riste","rits","sefir","sikt","sikte","skifte","skir","skit","skri","skrift","strike"]},
+{id:10,l:"AKRTSPE",n:58,v:["akter","aktre","asket","aspekt","aster","etsa","karp","kart","kase","kasper","kast","kaster","kras","kretsa","paket","pakt","pares","park","part","parts","peka","pekar","peta","prakt","prat","raket","rakt","raps","rask","rasket","rasp","rast","rate","reka","repa","repas","resa","reta","sate","skapt","skare","skarp","skate","skrap","spaet","spak","spakt","spark","speta","spreta","stake","stare","stark","steka","tape","teak","trea","tsar"]}
+];let puzzle=null;let letters=[],selected=[],room=null,player=1,channel=null,mode="solo",soloScore=0;
 const $=id=>document.getElementById(id),uid=()=>crypto.randomUUID(),clientId=uid();let onlineSelected=false;
 function makeLetters(s){const a=[...s],center=a.shift();a.sort(()=>Math.random()-.5);return[center,...a.slice(0,6)]}
 function showGame(){ $("home").classList.add("hidden");$("game").classList.remove("hidden");$("possibleCount").textContent=puzzle?puzzle.n:"20+";render()}
@@ -392,6 +424,6 @@ async function createRoom(){mode="online";player=1;letters=pickPuzzle();const co
 async function joinRoom(){const code=$("roomCode").value.trim().toUpperCase();const {data,error}=await sb.from("ordduellen_rooms").select("*").eq("code",code).single();if(error||!data){$("homeMsg").textContent="Rummet hittades inte.";return}if(data.guest_id){$("homeMsg").textContent="Rummet är fullt.";return}player=2;mode="online";const {data:updated,error:e}=await sb.from("ordduellen_rooms").update({guest_id:clientId,status:"playing"}).eq("id",data.id).is("guest_id",null).select().single();if(e||!updated){$("homeMsg").textContent="Kunde inte ansluta.";return}room=updated;letters=[...room.letters];openRoom();showGame()}
 function openRoom(){letters=[...room.letters];$("history").classList.remove("hidden");$("roomInfo").classList.remove("hidden");$("code").textContent=room.code;if(channel)sb.removeChannel(channel);channel=sb.channel("ordduellen-"+room.id).on("postgres_changes",{event:"UPDATE",schema:"public",table:"ordduellen_rooms",filter:"id=eq."+room.id},p=>{const wasMyTurn=room&&room.status==="playing"&&room.current_player===player;room=p.new;letters=[...room.letters];selected=[];const isMyTurn=room.status==="playing"&&room.current_player===player;if(!wasMyTurn&&isMyTurn&&navigator.vibrate)navigator.vibrate([120,60,120]);if(room.status==="playing"&&!$("createdRoom").classList.contains("hidden")){$("createdRoom").classList.add("hidden");showGame()}else render()}).subscribe()}
 $("create").onclick=createRoom;$("join").onclick=joinRoom;$("shuffle").onclick=()=>{const outer=letters.slice(1);outer.sort(()=>Math.random()-.5);letters=[letters[0],...outer];selected=[];render()};$("clear").onclick=()=>{selected=[];$("msg").textContent="";render()};
-$("submit").onclick=async()=>{const w=selected.map(i=>letters[i]).join("").toLowerCase();if(!selected.includes(0)){$("msg").textContent="Mittenbokstaven måste vara med.";return}if(w.length<4){$("msg").textContent="Minst 4 bokstäver.";return}if(mode==="solo"){if(soloPlayed.includes(w)){$("msg").textContent="Det ordet är redan lagt!";return}soloPlayed.push(w);soloScore++;selected=[];$("msg").textContent=w.toUpperCase()+" registrerat";render();return}if(!room||room.current_player!==player)return;const played=Array.isArray(room.played_words)?room.played_words:[];if(played.some(x=>x.word.toLowerCase()===w)){$("msg").textContent="Det ordet är redan lagt!";return}const patch={last_word:w,current_player:player===1?2:1,played_words:[...played,{word:w,player,at:new Date().toISOString()}]};if(player===1)patch.host_score=room.host_score+1;else patch.guest_score=room.guest_score+1;const {data,error}=await sb.from("ordduellen_rooms").update(patch).eq("id",room.id).eq("current_player",player).select().single();if(error){$("msg").textContent="Kunde inte lägga ord.";return}room=data;selected=[];$("msg").textContent=w.toUpperCase()+" lagt. Turen går över.";render()};
+$("submit").onclick=async()=>{const w=selected.map(i=>letters[i]).join("").toLowerCase();const msg=$("msg");msg.classList.remove("error","success");if(!selected.includes(0)){msg.textContent="Mittenbokstaven måste vara med.";msg.classList.add("error");return}if(w.length<4){msg.textContent="Minst 4 bokstäver.";msg.classList.add("error");return}if(!puzzle||!puzzle.v.includes(w)){msg.textContent="Det ordet finns inte i ordlistan.";msg.classList.add("error");return}if(mode==="solo"){if(soloPlayed.includes(w)){$("msg").textContent="Det ordet är redan lagt!";$("msg").classList.add("error");return}soloPlayed.push(w);soloScore++;selected=[];$("msg").textContent=w.toUpperCase()+" registrerat";$("msg").classList.add("success");render();return}if(!room||room.current_player!==player)return;const played=Array.isArray(room.played_words)?room.played_words:[];if(played.some(x=>x.word.toLowerCase()===w)){$("msg").textContent="Det ordet är redan lagt!";$("msg").classList.add("error");return}const patch={last_word:w,current_player:player===1?2:1,played_words:[...played,{word:w,player,at:new Date().toISOString()}]};if(player===1)patch.host_score=room.host_score+1;else patch.guest_score=room.guest_score+1;const {data,error}=await sb.from("ordduellen_rooms").update(patch).eq("id",room.id).eq("current_player",player).select().single();if(error){$("msg").textContent="Kunde inte lägga ord.";$("msg").classList.add("error");return}room=data;selected=[];$("msg").textContent=w.toUpperCase()+" lagt. Turen går över.";$("msg").classList.add("success");render()};
 $("back").onclick=()=>{if(channel){sb.removeChannel(channel);channel=null}$("game").classList.add("hidden");$("home").classList.remove("hidden");$("roomInfo").classList.add("hidden")};
 </script></body></html>
