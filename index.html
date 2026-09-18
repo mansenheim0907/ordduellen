@@ -299,6 +299,38 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
 .word-book{width:94%;max-height:120px;overflow:auto;margin:5px auto;padding:8px 12px;background:linear-gradient(#fff0c8,#efd094);border:6px solid #75451f;outline:2px solid #392216;border-radius:8px;box-shadow:0 5px #4d2d1b}.word-book h3{margin:0 0 5px}.history-word{display:flex;padding:4px 7px;border-bottom:1px solid #d3aa6c;font-weight:900}
 .wood-actions{width:94%;margin:8px auto;display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:7px}.wood-actions button{min-height:50px;border:5px solid #59321d;outline:2px solid #2f1c12;border-radius:9px;box-shadow:inset 0 2px #ffffff44,0 5px #402518;color:#fff8e9;font-weight:1000;text-shadow:0 2px #382116}.wood-actions button:nth-child(1){background:linear-gradient(#ad6532,#78401f)}.wood-actions button:nth-child(2){background:linear-gradient(#db624c,#a43a2f)}.wood-actions button:nth-child(3){background:linear-gradient(#57904f,#2d6539)}.home-link{display:block;margin:auto;padding:5px 12px;background:#eed39f;border:3px solid #704824;border-radius:7px;font-weight:900}
 @media(max-height:760px){.play-scene{padding-top:8px}.remaining-board{margin-top:8px}.rule-note{display:none}.letter-wheel{width:min(58vw,230px);height:min(58vw,230px);border-width:7px}.letter-piece{width:50px;height:50px;font-size:1.5rem;border-width:3px}.word-book{max-height:72px}.wood-actions button{min-height:43px}}
+</style><style id="layout-space-fix-v21">
+/* Remove the empty message row from layout; keep feedback as a floating toast. */
+#game .message{
+  position:absolute!important;
+  left:50%!important;
+  bottom:92px!important;
+  transform:translateX(-50%)!important;
+  z-index:20!important;
+  min-height:0!important;
+  width:max-content!important;
+  max-width:88%!important;
+  margin:0!important;
+  padding:0!important;
+  pointer-events:none!important;
+  background:transparent!important;
+}
+#game .message:not(:empty){
+  padding:6px 11px!important;
+  background:#fff0c8!important;
+  border:3px solid #75451f!important;
+  border-radius:8px!important;
+  box-shadow:0 4px #4d2d1b!important;
+}
+#game .word-book{
+  max-height:190px!important;
+  min-height:118px!important;
+  margin-top:10px!important;
+}
+@media(max-height:760px){
+  #game .word-book{max-height:125px!important;min-height:88px!important}
+  #game .message{bottom:82px!important}
+}
 </style></head>
 <body><main class="app">
 <section id="home"><div class="scene">
