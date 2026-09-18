@@ -658,6 +658,33 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
   display:none!important;
   background:none!important;
 }
+</style><style id="back-under-clear-v29">
+#game .wood-actions{
+  display:grid!important;
+  grid-template-columns:1fr 1fr 1.25fr!important;
+  gap:7px!important;
+  width:94%!important;
+  margin:8px auto 12px!important;
+}
+#game .wood-actions #back{
+  grid-column:2!important;
+  grid-row:2!important;
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  min-height:46px!important;
+  position:static!important;
+  display:block!important;
+  border:5px solid #59321d!important;
+  outline:2px solid #2f1c12!important;
+  border-radius:9px!important;
+  background:linear-gradient(#ad6532,#78401f)!important;
+  box-shadow:inset 0 2px #ffffff44,0 5px #402518!important;
+  color:#fff8e9!important;
+  text-shadow:0 2px #382116!important;
+  font-size:.82rem!important;
+  font-weight:1000!important;
+}
 </style></head>
 <body><main class="app">
 <section id="home">
@@ -710,8 +737,7 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
   <div id="board" class="letter-wheel"></div>
   <div id="msg" class="message"></div>
   <div id="history" class="word-book hidden"><h3>▤ Lagda ord <span id="historyCount">(0)</span></h3><div id="historyWords"></div></div>
-  <div class="wood-actions"><button id="shuffle">↝ Blanda</button><button id="clear">▣ Rensa</button><button id="submit">➤ Lägg ord</button></div>
-  <button id="back" class="home-link" aria-label="Till startsidan">‹ Startsida</button>
+  <div class="wood-actions"><button id="shuffle">↝ Blanda</button><button id="clear">▣ Rensa</button><button id="submit">➤ Lägg ord</button><button id="back" class="home-link" aria-label="Till startsidan">‹ Startsida</button></div>
 </div></section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 const SB_URL="https://vihncukhitijhrvgvonw.supabase.co",SB_KEY="sb_publishable_cekFLm639kSdmlifG7YFWw_O-EFse4C",sb=supabase.createClient(SB_URL,SB_KEY);
