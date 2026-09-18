@@ -867,7 +867,7 @@ const SB_URL="https://vihncukhitijhrvgvonw.supabase.co",SB_KEY="sb_publishable_c
 const puzzles=[
 {id:3,l:"OSKLBAR",n:28,v:["balsko","boka","brosk","kaos","karbol","klor","kobra","kola","kora","koral","kors","korsa","kosa","loska","oklar","oral","orka","orsak","rosa","skol","skola","slok","sloka","sola","solka","sork","sorl","sorla"]},
 {id:5,l:"ÖGRNSAK",n:26,v:["angörs","göka","göra","grön","grönas","grönsak","grönska","knös","köra","krön","kröna","ögna","önska","öskar","röka","rökgas","röna","skön","sköna","skör","skröna","snöa","snör","snöra","söka","sökar"]},
-{id:9,l:"ISKRFTE",n:30,v:["etik","etisk","fiser","fisk","fiske","fris","frisk","frist","frites","iste","ister","kefir","kite","kreti","kris","krit","rike","rikt","risk","riste","rits","sefir","sikt","sikte","skifte","skir","skit","skri","skrift","strike"]}
+{id:9,l:"ISKRFTE",n:30,v:["etik","etisk","fiser","fisk","fiske","fris","frisk","frist","frites","iste","ister","kefir","kite","kreti","kris","krit","rike","rikt","risk","riste","rits","sikt","sikte","skift","skifte","skir","skit","skri","skrift","strike"]}
 ];puzzles.forEach(x=>x.n=x.v.length);let puzzle=null;let letters=[],selected=[],room=null,player=1,channel=null,mode="solo",soloScore=0;const TOTAL_TIME_MS=300000;let timeoutLock=false;
 const $=id=>document.getElementById(id),uid=()=>crypto.randomUUID(),clientId=uid();let onlineSelected=false;
 function makeLetters(s){const a=[...s],center=a.shift();a.sort(()=>Math.random()-.5);return[center,...a.slice(0,6)]}
