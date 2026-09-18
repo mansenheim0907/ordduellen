@@ -649,6 +649,15 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
 #home [class*="letter-cloud"]{
   display:none!important;
 }
+</style><style id="home-kill-legacy-pseudos-v28">
+#home::before,#home::after,
+#home .soft-home::before,#home .soft-home::after,
+#home .scene::before,#home .scene::after,
+#home .home-scene::before,#home .home-scene::after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+}
 </style></head>
 <body><main class="app">
 <section id="home">
