@@ -1120,7 +1120,7 @@ html,body,.app{
 </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
-const APP_VERSION="20260919-1720";
+const APP_VERSION="20260919-1726";
 async function ensureLatestVersion(){
   try{
     const res=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
@@ -1151,7 +1151,7 @@ function getHighscores(){
 function renderHighscores(){
   const list=$("highscoreList"),empty=$("highscoreEmpty");
   if(!list||!empty)return;
-  const scores=getHighscores().sort((a,b)=>b.score-a.score||a.remaining-b.remaining).slice(0,5);
+  const scores=getHighscores().sort((a,b)=>b.score-a.score||a.remaining-b.remaining).slice(0,20);
   list.innerHTML=scores.map((x,i)=>"<li><span>"+(i+1)+". "+(x.name||"---")+" · "+x.score+" poäng</span><span>"+x.remaining+" ord kvar</span></li>").join("");
   empty.classList.toggle("hidden",scores.length>0);
 }
