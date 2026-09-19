@@ -1172,13 +1172,11 @@ html,body,.app{
     <div id="onlinePanel" class="soft-panel">
       <button id="onlineBack" class="soft-back">‹ Tillbaka</button>
       <h2>Spela mot en vän</h2>
-      <p class="online-intro">Skapa ett nytt rum eller anslut till en vän med en rumskod.</p>
+      <p class="online-intro">Skapa ett nytt rum eller skanna en QR-kod från en vän.</p>
       <button id="create" class="soft-primary">Skapa rum</button>
       <button id="scanQr" class="soft-secondary scan-button" type="button">📷 Skanna kod</button>
-      <div class="soft-divider">eller skriv in kod</div>
-      <label class="soft-label" for="roomCode">Rumskod</label>
-      <input id="roomCode" maxlength="5" autocomplete="off" autocapitalize="characters" placeholder="QKS4G">
-      <button id="join" class="soft-secondary">Anslut</button>
+      <input id="roomCode" type="hidden">
+      <button id="join" class="hidden" type="button" tabindex="-1" aria-hidden="true">Anslut</button>
       <div id="homeMsg" class="soft-message"></div>
     </div>
 
@@ -1231,7 +1229,7 @@ html,body,.app{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script><script>
-const APP_VERSION="20260919-FRIEND-LABEL";
+const APP_VERSION="20260919-QR-ONLY";
 async function ensureLatestVersion(){
   try{
     const res=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
@@ -1597,15 +1595,11 @@ if(/^[A-Z0-9]{5}$/.test(invitedRoomCode)){
   $("createdRoom").classList.add("hidden");
   $("create").classList.add("hidden");
   $("scanQr").classList.add("hidden");
-  const divider=$("onlinePanel").querySelector(".soft-divider");
-  if(divider)divider.classList.add("hidden");
   const intro=$("onlinePanel").querySelector(".online-intro");
-  if(intro)intro.textContent="Du har blivit inbjuden till rum "+invitedRoomCode+".";
-  const label=$("onlinePanel").querySelector('label[for="roomCode"]');
-  if(label)label.textContent="Rumskod";
+  if(intro)intro.textContent="Ansluter till rummet…";
   $("roomCode").value=invitedRoomCode;
-  $("roomCode").readOnly=true;
-  $("homeMsg").textContent="Tryck Anslut för att gå med i rummet.";
+  $("homeMsg").textContent="Ansluter…";
+  setTimeout(()=>joinRoom(),0);
 }
 function showHomeFromOnline(){
   closeQrScanner();
@@ -1615,13 +1609,8 @@ function showHomeFromOnline(){
   $("homeMsg").textContent="";
   $("create").classList.remove("hidden");
   $("scanQr").classList.remove("hidden");
-  const divider=$("onlinePanel").querySelector(".soft-divider");
-  if(divider)divider.classList.remove("hidden");
   const intro=$("onlinePanel").querySelector(".online-intro");
-  if(intro)intro.textContent="Skapa ett nytt rum eller anslut till en vän med en rumskod.";
-  const label=$("onlinePanel").querySelector('label[for="roomCode"]');
-  if(label)label.textContent="Anslut med kod";
-  $("roomCode").readOnly=false;
+  if(intro)intro.textContent="Skapa ett nytt rum eller skanna en QR-kod från en vän.";
   $("roomCode").value="";
   if($("onlineScreen"))$("onlineScreen").classList.add("hidden");
   $("home").classList.remove("hidden");
