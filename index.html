@@ -842,27 +842,26 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
   display:none!important;
   background:none!important;
 }
-</style><style id="game-full-brown-v38">
-html,body{
-  background:#c89f72!important;
-}
-.app{
-  width:100%!important;
-  max-width:none!important;
-  margin:0!important;
-  padding:0!important;
-}
+</style><style id="game-full-brown-v39">
 #game{
-  width:100%!important;
-  max-width:none!important;
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
   min-height:100dvh!important;
+  max-width:none!important;
   margin:0!important;
   padding:0!important;
+  overflow-y:auto!important;
+  z-index:100!important;
   background:linear-gradient(to bottom,
     #e7d2b2 0%,
     #dcc09a 42%,
     #c89f72 72%,
     #aa774d 100%)!important;
+}
+#game.hidden{
+  display:none!important;
 }
 #game .play-scene{
   width:100%!important;
