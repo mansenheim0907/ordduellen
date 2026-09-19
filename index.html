@@ -995,7 +995,7 @@ html,body,.app{
 }
 #onlineScreen .soft-panel{
   width:min(100%,430px)!important;
-  margin:7vh auto 0!important;
+  margin:18px auto 0!important;
   padding:22px!important;
   background:rgba(255,249,241,.97)!important;
   border:1px solid #d5c0aa!important;
@@ -1046,7 +1046,7 @@ html,body,.app{
 @media(max-height:700px){
   #onlineScreen .online-screen-inner{padding-top:14px!important}
   #onlineScreen .online-brand{padding-top:12px!important}
-  #onlineScreen .soft-panel{margin-top:18px!important}
+  #onlineScreen .soft-panel{margin-top:12px!important}
 }
 </style>
 <style id="solo-stress-v1">
@@ -1116,7 +1116,7 @@ html,body,.app{
       </button>
       <button id="onlineStart" class="soft-choice">
         <span class="soft-choice-icon">○</span>
-        <span class="soft-choice-copy"><b>Spela online</b><small>Skapa ett rum och bjud in en vän</small></span>
+        <span class="soft-choice-copy"><b>Spela mot en vän</b><small>Skapa ett rum och bjud in en vän</small></span>
         <span class="soft-choice-arrow">›</span>
       </button>
 
@@ -1166,12 +1166,12 @@ html,body,.app{
   <div class="online-screen-inner">
     <header class="online-brand">
       <h1>Ordduellen</h1>
-      <p>Spela online</p>
+      <p>Spela mot en vän</p>
     </header>
 
     <div id="onlinePanel" class="soft-panel">
       <button id="onlineBack" class="soft-back">‹ Tillbaka</button>
-      <h2>Spela online</h2>
+      <h2>Spela mot en vän</h2>
       <p class="online-intro">Skapa ett nytt rum eller anslut till en vän med en rumskod.</p>
       <button id="create" class="soft-primary">Skapa rum</button>
       <button id="scanQr" class="soft-secondary scan-button" type="button">📷 Skanna kod</button>
@@ -1231,7 +1231,7 @@ html,body,.app{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script><script>
-const APP_VERSION="20260919-ONLINE-SCROLL";
+const APP_VERSION="20260919-FRIEND-LABEL";
 async function ensureLatestVersion(){
   try{
     const res=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
