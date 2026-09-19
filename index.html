@@ -940,6 +940,25 @@ html,body,.app{
   background:linear-gradient(#d39a43,#a56524)!important;
 }
 #game #back{grid-column:1 / -1!important}
+.result-card #highscoreNameWrap{margin:14px 0!important}
+.result-card #highscoreNameWrap label{display:block!important;margin-bottom:7px!important;font-weight:900!important}
+.result-card #highscoreName{
+  width:120px!important;
+  max-width:60%!important;
+  margin:0 auto 10px!important;
+  display:block!important;
+  padding:10px 12px!important;
+  text-align:center!important;
+  text-transform:uppercase!important;
+  letter-spacing:.22em!important;
+  font-size:1.35rem!important;
+  font-weight:1000!important;
+  border:3px solid #8b5d2d!important;
+  border-radius:10px!important;
+  background:#fffaf0!important;
+  color:#3b2a1e!important;
+}
+.result-card #saveHighscoreBtn{margin-bottom:10px!important}
 </style></head>
 <body><main class="app">
 <section id="home">
@@ -1016,12 +1035,17 @@ html,body,.app{
   <div class="result-card">
     <h2 id="resultTitle">Matchen är slut</h2>
     <p id="resultText"></p>
+    <div id="highscoreNameWrap" class="hidden">
+      <label for="highscoreName">Ditt namn</label>
+      <input id="highscoreName" maxlength="3" minlength="3" autocomplete="off" autocapitalize="characters" inputmode="text" placeholder="ABC">
+      <button id="saveHighscoreBtn" type="button">Spara highscore</button>
+    </div>
     <button id="resultHome" type="button">Till startsidan</button>
   </div>
 </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
-const APP_VERSION="20260919-1625";
+const APP_VERSION="20260919-1634";
 async function ensureLatestVersion(){
   try{
     const res=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
@@ -1053,12 +1077,12 @@ function renderHighscores(){
   const list=$("highscoreList"),empty=$("highscoreEmpty");
   if(!list||!empty)return;
   const scores=getHighscores().sort((a,b)=>b.score-a.score||a.remaining-b.remaining).slice(0,5);
-  list.innerHTML=scores.map((x,i)=>"<li><span>"+(i+1)+". "+x.score+" poäng</span><span>"+x.remaining+" ord kvar</span></li>").join("");
+  list.innerHTML=scores.map((x,i)=>"<li><span>"+(i+1)+". "+(x.name||"---")+" · "+x.score+" poäng</span><span>"+x.remaining+" ord kvar</span></li>").join("");
   empty.classList.toggle("hidden",scores.length>0);
 }
-function saveHighscore(score,remaining){
+function saveHighscore(name,score,remaining){
   const scores=getHighscores();
-  scores.push({score,remaining,at:new Date().toISOString()});
+  scores.push({name,score,remaining,at:new Date().toISOString()});
   scores.sort((a,b)=>b.score-a.score||a.remaining-b.remaining);
   try{localStorage.setItem(HIGHSCORE_KEY,JSON.stringify(scores.slice(0,20)))}catch(_e){}
   renderHighscores();
@@ -1358,15 +1382,37 @@ async function joinRoom(){await ensureWordBank();const code=$("roomCode").value.
 function openRoom(){letters=[...room.letters];syncPuzzleFromRoom();$("history").classList.remove("hidden");$("roomInfo").classList.remove("hidden");$("code").textContent=room.code;if(channel)sb.removeChannel(channel);channel=sb.channel("ordduellen-"+room.id).on("postgres_changes",{event:"UPDATE",schema:"public",table:"ordduellen_rooms",filter:"id=eq."+room.id},p=>{const wasMyTurn=room&&room.status==="playing"&&room.current_player===player;room=p.new;letters=[...room.letters];selected=[];const isMyTurn=room.status==="playing"&&room.current_player===player;if(!wasMyTurn&&isMyTurn&&navigator.vibrate)navigator.vibrate([120,60,120]);if(room.status==="playing"&&!$("createdRoom").classList.contains("hidden")){$("createdRoom").classList.add("hidden");showGame()}else render()}).subscribe()}
 $("create").onclick=createRoom;$("join").onclick=joinRoom;$("shuffle").onclick=()=>{const outer=letters.slice(1);outer.sort(()=>Math.random()-.5);letters=[letters[0],...outer];selected=[];render()};$("clear").onclick=()=>{selected=[];$("msg").textContent="";render()};
 $("submit").onclick=async()=>{const w=selected.map(i=>letters[i]).join("").toLowerCase();const msg=$("msg");msg.classList.remove("error","success");if(!selected.includes(0)){msg.textContent="Mittenbokstaven måste vara med.";msg.classList.add("error");return}if(w.length<4){msg.textContent="Minst 4 bokstäver.";msg.classList.add("error");return}const saolResult=validateSaolWord(w);if(!saolResult.valid){msg.textContent="Ej SAOL-grundform: "+w.toUpperCase();msg.classList.add("error");return}if(mode==="solo"){if(soloPlayed.includes(w)){$("msg").textContent="Det ordet är redan lagt!";$("msg").classList.add("error");return}soloPlayed.push(w);soloScore++;selected=[];$("msg").textContent=w.toUpperCase()+" registrerat";$("msg").classList.add("success");render();return}if(!room||room.current_player!==player)return;const played=Array.isArray(room.played_words)?room.played_words:[];if(played.some(x=>x.word.toLowerCase()===w)){$("msg").textContent="Det ordet är redan lagt!";$("msg").classList.add("error");return}const remaining=playerTimeMs(player);if(remaining<=0){msg.textContent="Din tid är slut.";msg.classList.add("error");expireCurrentTurn();return}const patch={last_word:w,current_player:player===1?2:1,turn_started_at:new Date().toISOString(),played_words:[...played,{word:w,player,at:new Date().toISOString()}]};if(player===1){patch.host_score=room.host_score+1;patch.host_time_ms=remaining}else{patch.guest_score=room.guest_score+1;patch.guest_time_ms=remaining};const {data,error}=await sb.from("ordduellen_rooms").update(patch).eq("id",room.id).eq("current_player",player).select().single();if(error){$("msg").textContent="Kunde inte lägga ord.";$("msg").classList.add("error");return}room=data;selected=[];$("msg").textContent=w.toUpperCase()+" lagt. Turen går över.";$("msg").classList.add("success");render()};
+let pendingSoloResult=null;
 $("finishSolo").onclick=()=>{
   if(mode!=="solo")return;
   const remaining=remainingWords();
   const score=scoreFromRemaining(remaining);
-  saveHighscore(score,remaining);
+  pendingSoloResult={score,remaining};
   $("resultTitle").textContent="Rundan avslutad";
   $("resultText").textContent="Du fick "+score+" poäng. "+remaining+" ord kvar.";
+  $("highscoreNameWrap").classList.remove("hidden");
+  $("resultHome").classList.add("hidden");
+  $("highscoreName").value="";
   $("resultModal").classList.remove("hidden");
+  setTimeout(()=>$("highscoreName")?.focus(),50);
 };
-$("resultHome").onclick=()=>{$("resultModal").classList.add("hidden");$("back").click()};
+$("highscoreName").addEventListener("input",e=>{
+  e.target.value=e.target.value.toUpperCase().replace(/[^A-ZÅÄÖ0-9]/g,"").slice(0,3);
+});
+$("saveHighscoreBtn").onclick=()=>{
+  if(!pendingSoloResult)return;
+  const name=$("highscoreName").value.trim().toUpperCase();
+  if(name.length!==3){
+    $("resultText").textContent="Skriv in exakt tre tecken som namn.";
+    $("highscoreName").focus();
+    return;
+  }
+  saveHighscore(name,pendingSoloResult.score,pendingSoloResult.remaining);
+  $("resultText").textContent=name+" sparades med "+pendingSoloResult.score+" poäng.";
+  pendingSoloResult=null;
+  $("highscoreNameWrap").classList.add("hidden");
+  $("resultHome").classList.remove("hidden");
+};
+$("resultHome").onclick=()=>{$("resultModal").classList.add("hidden");$("highscoreNameWrap").classList.add("hidden");$("resultHome").classList.remove("hidden");pendingSoloResult=null;$("back").click()};
 $("back").onclick=()=>{if(channel){sb.removeChannel(channel);channel=null}room=null;selected=[];$("msg").textContent="";$("game").classList.add("hidden");$("game").style.display="none";$("home").classList.remove("hidden");$("home").style.display="block";$("roomInfo").classList.add("hidden");$("onlinePanel").classList.add("hidden");$("createdRoom").classList.add("hidden");$("mainMenu").classList.remove("hidden");renderHighscores()};
 </script></body></html>
