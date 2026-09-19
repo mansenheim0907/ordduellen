@@ -1084,13 +1084,13 @@ html,body,.app{
     </div>
 
     <div id="createdRoom" class="soft-panel hidden">
-      <button id="cancelRoom" class="soft-back">‹ Tillbaka</button>
       <h2>Rummet är skapat</h2>
       <p>Dela koden med din vän</p>
       <button id="createdCode" class="soft-code">-----</button>
       <small>Tryck på koden för att kopiera</small>
       <button id="shareRoom" class="soft-primary" type="button">Dela rum</button>
       <small id="shareHint">Skickar en direktlänk till rummet</small>
+      <button id="cancelRoom" class="soft-secondary" type="button">Avbryt</button>
       <p class="soft-waiting">Väntar på spelare 2…</p>
     </div>
   </div>
@@ -1423,14 +1423,31 @@ if(/^[A-Z0-9]{5}$/.test(invitedRoomCode)){
   $("onlineScreen").classList.remove("hidden");
   $("onlinePanel").classList.remove("hidden");
   $("createdRoom").classList.add("hidden");
+  $("create").classList.add("hidden");
+  const divider=$("onlinePanel").querySelector(".soft-divider");
+  if(divider)divider.classList.add("hidden");
+  const intro=$("onlinePanel").querySelector(".online-intro");
+  if(intro)intro.textContent="Du har blivit inbjuden till rum "+invitedRoomCode+".";
+  const label=$("onlinePanel").querySelector('label[for="roomCode"]');
+  if(label)label.textContent="Rumskod";
   $("roomCode").value=invitedRoomCode;
-  $("homeMsg").textContent="Du har blivit inbjuden till rum "+invitedRoomCode+". Tryck Anslut.";
+  $("roomCode").readOnly=true;
+  $("homeMsg").textContent="Tryck Anslut för att gå med i rummet.";
 }
 function showHomeFromOnline(){
   $("onlineScreen").classList.add("hidden");
   $("onlinePanel").classList.remove("hidden");
   $("createdRoom").classList.add("hidden");
   $("homeMsg").textContent="";
+  $("create").classList.remove("hidden");
+  const divider=$("onlinePanel").querySelector(".soft-divider");
+  if(divider)divider.classList.remove("hidden");
+  const intro=$("onlinePanel").querySelector(".online-intro");
+  if(intro)intro.textContent="Skapa ett nytt rum eller anslut till en vän med en rumskod.";
+  const label=$("onlinePanel").querySelector('label[for="roomCode"]');
+  if(label)label.textContent="Anslut med kod";
+  $("roomCode").readOnly=false;
+  $("roomCode").value="";
   if($("onlineScreen"))$("onlineScreen").classList.add("hidden");
   $("home").classList.remove("hidden");
   $("home").style.display="block";
@@ -1471,7 +1488,7 @@ $("shareRoom").onclick=async()=>{
     }
   }
 };
-$("cancelRoom").onclick=()=>{if(channel){sb.removeChannel(channel);channel=null}room=null;$("createdRoom").classList.add("hidden");$("onlinePanel").classList.remove("hidden")};
+$("cancelRoom").onclick=async()=>{const roomId=room?.id;if(channel){sb.removeChannel(channel);channel=null}if(roomId){try{await sb.from("ordduellen_rooms").delete().eq("id",roomId).eq("host_id",clientId).eq("status","waiting")}catch(_e){}}room=null;$("createdRoom").classList.add("hidden");$("onlinePanel").classList.remove("hidden");$("homeMsg").textContent=""};
 async function createRoom(){mode="online";player=1;await ensureWordBank();letters=pickPuzzle();const code=Math.random().toString(36).slice(2,7).toUpperCase();const {data,error}=await sb.from("ordduellen_rooms").insert({code,host_id:clientId,letters:letters.join(""),puzzle_id:101,host_time_ms:TOTAL_TIME_MS,guest_time_ms:TOTAL_TIME_MS}).select().single();if(error){console.error("createRoom failed",error);$("homeMsg").textContent="Kunde inte skapa rum: "+(error.message||"okänt fel");return}room=data;$("homeMsg").textContent="";$("onlinePanel").classList.add("hidden");$("createdRoom").classList.remove("hidden");$("createdCode").textContent=room.code;openRoom();render();hydrateCurrentPuzzle()}
 async function joinRoom(){await ensureWordBank();const code=$("roomCode").value.trim().toUpperCase();const {data,error}=await sb.from("ordduellen_rooms").select("*").eq("code",code).single();if(error||!data){$("homeMsg").textContent="Rummet hittades inte.";return}if(data.guest_id){$("homeMsg").textContent="Rummet är fullt.";return}player=2;mode="online";room=data;letters=[...room.letters];syncPuzzleFromRoom();if(!puzzle||!Array.isArray(puzzle.v)){$("homeMsg").textContent="Spelplanen kunde inte läsas. Ladda om sidan och försök igen.";return}const {data:updated,error:e}=await sb.from("ordduellen_rooms").update({guest_id:clientId,status:"playing",turn_started_at:new Date().toISOString()}).eq("id",data.id).is("guest_id",null).select().single();if(e||!updated){$("homeMsg").textContent="Kunde inte ansluta.";return}room=updated;letters=[...room.letters];$("homeMsg").textContent="";openRoom();showGame()}
 function openRoom(){letters=[...room.letters];syncPuzzleFromRoom();$("history").classList.remove("hidden");$("roomInfo").classList.remove("hidden");$("code").textContent=room.code;if(channel)sb.removeChannel(channel);channel=sb.channel("ordduellen-"+room.id).on("postgres_changes",{event:"UPDATE",schema:"public",table:"ordduellen_rooms",filter:"id=eq."+room.id},p=>{const wasMyTurn=room&&room.status==="playing"&&room.current_player===player;room=p.new;letters=[...room.letters];selected=[];const isMyTurn=room.status==="playing"&&room.current_player===player;if(!wasMyTurn&&isMyTurn&&navigator.vibrate)navigator.vibrate([120,60,120]);if(room.status==="playing"&&!$("createdRoom").classList.contains("hidden")){$("createdRoom").classList.add("hidden");showGame()}else render()}).subscribe()}
