@@ -896,6 +896,28 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
 .result-card h2{margin:0 0 10px;font-size:clamp(2rem,8vw,3rem);line-height:1}
 .result-card p{margin:8px 0 18px;font-size:1.05rem;font-weight:800}
 .result-card button{width:100%;padding:14px 18px;border:4px solid #5d351f;border-radius:14px;background:linear-gradient(#4f9b52,#2e7337);color:white;font:inherit;font-weight:1000;font-size:1.15rem;box-shadow:0 5px #385122}
+</style><style id="home-full-brown-v41">
+html,body,.app{
+  background:#c89f72!important;
+}
+#home{
+  background:linear-gradient(to bottom,
+    #e7d2b2 0%,
+    #dcc09a 42%,
+    #c89f72 72%,
+    #aa774d 100%)!important;
+}
+#home .soft-home{
+  background:transparent!important;
+}
+#home::before,
+#home::after,
+#home .soft-home::before,
+#home .soft-home::after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+}
 </style></head>
 <body><main class="app">
 <section id="home">
@@ -971,7 +993,7 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
 </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
-const APP_VERSION="20260919-1342";
+const APP_VERSION="20260919-1348";
 async function ensureLatestVersion(){
   try{
     const res=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
