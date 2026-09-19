@@ -1023,6 +1023,26 @@ html,body,.app{
 #onlineScreen .soft-divider{display:flex!important;align-items:center!important;gap:10px!important;margin:18px 0!important;text-align:center!important}
 #onlineScreen .soft-divider:before,#onlineScreen .soft-divider:after{content:""!important;height:1px!important;background:#d5c0aa!important;flex:1!important}
 </style>
+<style id="solo-stress-v1">
+#soloModeMenu{width:min(92%,430px);margin:24px auto 0!important}
+#soloModeMenu h2{margin:6px 0 8px!important;text-align:center}
+#soloModeMenu .solo-mode-intro{text-align:center;color:#7b6859;margin:0 0 16px;font-weight:700}
+#soloModeMenu .soft-choice{margin-bottom:11px!important}
+#stressTimer{
+  width:max-content;
+  min-width:132px;
+  margin:6px auto 8px;
+  padding:8px 16px;
+  border:3px solid #765033;
+  border-radius:10px;
+  background:#f3dfbd;
+  color:#4b382b;
+  box-shadow:0 3px #543923;
+  text-align:center;
+  font-weight:900;
+}
+#stressTimer b{font-size:1.15rem;margin-left:6px}
+</style>
 <style id="leave-button-style-v1">
 #game .wood-actions #leaveOnline{
   background:linear-gradient(#ad6532,#78401f)!important;
@@ -1080,16 +1100,37 @@ html,body,.app{
           <p>Bygg ord av de sju bokstäverna.</p>
           <p>Mittenbokstaven måste alltid vara med och varje bokstav får bara användas en gång.</p>
           <p>Orden måste vara minst fyra bokstäver långa.</p>
-          <p>I sololäget får du 1 poäng per hittat ord. Hittar du alla ord på spelplanen får du 50 poäng.</p>
+          <p>I Spela fritt får du 1 poäng per hittat ord. Hittar du alla ord på spelplanen får du 50 poäng.</p><p>I Stress har du 3 minuter på dig att hitta så många ord som möjligt.</p>
           <p>I onlineläge turas spelarna om. Varje spelare har totalt fem minuter som bara räknas under den egna turen.</p>
         </div>
       </details>
 
-      <div class="highscore-board" aria-label="Highscore">
-        <h3>Highscore</h3>
+      <div class="highscore-board" aria-label="Highscore Spela fritt">
+        <h3>Highscore – Spela fritt</h3>
         <ol id="highscoreList" class="highscore-list"></ol>
         <div id="highscoreEmpty" class="highscore-empty">Inga poäng registrerade ännu</div>
       </div>
+      <div class="highscore-board" aria-label="Highscore Stress">
+        <h3>Highscore – Stress</h3>
+        <ol id="stressHighscoreList" class="highscore-list"></ol>
+        <div id="stressHighscoreEmpty" class="highscore-empty">Inga poäng registrerade ännu</div>
+      </div>
+    </div>
+
+    <div id="soloModeMenu" class="soft-menu hidden">
+      <button id="soloModeBack" class="soft-back">‹ Tillbaka</button>
+      <h2>Spela själv</h2>
+      <p class="solo-mode-intro">Välj spelläge</p>
+      <button id="freeStart" class="soft-choice">
+        <span class="soft-choice-icon">•</span>
+        <span class="soft-choice-copy"><b>Spela fritt</b><small>Hitta ord utan tidsgräns</small></span>
+        <span class="soft-choice-arrow">›</span>
+      </button>
+      <button id="stressStart" class="soft-choice">
+        <span class="soft-choice-icon">⏱</span>
+        <span class="soft-choice-copy"><b>Stress</b><small>Hitta så många ord som möjligt på 3 minuter</small></span>
+        <span class="soft-choice-arrow">›</span>
+      </button>
     </div>
 
   </div>
@@ -1131,7 +1172,7 @@ html,body,.app{
   <header class="score-header"><div class="game-logo">Ordduellen</div></header>
   <div id="roomInfo" class="hidden"><span id="code"></span></div>
   <div class="remaining-board">Kvar att hitta: <b id="possibleCount">20+</b></div>
-  <div id="turn" class="turn-board word-preview">Ditt ord</div><div id="timers" class="timer-strip hidden"><span id="myTimer" class="timer-chip">Din tid <b>5:00</b></span><span id="otherTimer" class="timer-chip">Motståndarens tid <b>5:00</b></span></div>
+  <div id="turn" class="turn-board word-preview">Ditt ord</div><div id="stressTimer" class="hidden">Tid kvar <b>3:00</b></div><div id="timers" class="timer-strip hidden"><span id="myTimer" class="timer-chip">Din tid <b>5:00</b></span><span id="otherTimer" class="timer-chip">Motståndarens tid <b>5:00</b></span></div>
   <p class="rule-note">Mittenbokstaven måste användas · minst 4 bokstäver</p>
   <div id="board" class="letter-wheel"></div>
   <div id="msg" class="message"></div>
@@ -1164,7 +1205,7 @@ html,body,.app{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script><script>
-const APP_VERSION="20260919-1848";
+const APP_VERSION="20260919-STRESS1";
 async function ensureLatestVersion(){
   try{
     const res=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
@@ -1182,7 +1223,7 @@ ensureLatestVersion();
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")ensureLatestVersion()});
 window.addEventListener("pageshow",()=>ensureLatestVersion());
 const SB_URL="https://vihncukhitijhrvgvonw.supabase.co",SB_KEY="sb_publishable_cekFLm639kSdmlifG7YFWw_O-EFse4C",sb=supabase.createClient(SB_URL,SB_KEY);
-const puzzles=[{"id":101,"l":"AKTTFRI","v":["fait","fakir","farit","fart","fika","fira","frakt","fria","frita","ifatt","ikraft","kart","katt","kitta","kraft","krita","rakit","rakt","ratt","rikta","rita","taft","takt","trafik","trakt"]},{"id":102,"l":"ASKTTFR","v":["fars","fart","fast","frakt","fras","kart","kast","katt","krafs","kraft","kras","rakt","rask","rast","ratt","saft","skaft","skatt","skratt","stark","start","stat","tafs","taft","takt","trakt","trast","tsar"]},{"id":103,"l":"ASRNDEN","v":["andre","anse","dans","denna","deras","enda","ensa","nedan","nedrans","nesa","rand","rann","reda","redan","rena","rensa","resa","sade","sand","sann","sedan","sena","snar"]},{"id":104,"l":"ASTRNEN","v":["anse","ante","aster","ensa","etsa","nesa","rann","rast","rate","rena","renast","rensa","resa","reta","sann","sate","sena","senat","snar","stan","stare","stena","trans","trea","tsar"]},{"id":105,"l":"OKLBARN","v":["banko","baron","boka","bona","karbol","karbon","klon","klona","klor","kobra","kola","kolbarn","kona","kora","koral","koran","korn","kron","krona","oklar","oral","orka","orkan"]},{"id":106,"l":"OSKLBAN","v":["balsko","banko","bansko","boka","bona","kaos","klon","klona","kola","kona","kosa","loska","nosa","skol","skola","skona","slok","sloka","snok","snoka","sola","solka","sona"]},{"id":107,"l":"OSKLBAR","v":["balsko","boka","brosk","kaos","karbol","klor","kobra","kola","kora","koral","kors","korsa","kosa","loska","oklar","oral","orka","orsak","rosa","skol","skola","slok","sloka","sola","solka","sork","sorl","sorla"]},{"id":108,"l":"ÖRNSAKE","v":["knös","krön","kröna","köra","röka","röna","röse","skröna","skön","sköna","skör","snöa","snör","snöra","snöre","söka","sökar","sökare","söner","öken","önska","önske","öres","öskar"]},{"id":109,"l":"ÖGRNSAK","v":["angörs","grön","grönas","grönsak","grönska","göka","göra","knös","krön","kröna","köra","röka","rökgas","röna","skröna","skön","sköna","skör","snöa","snör","snöra","söka","sökar","ögna","önska","öskar"]},{"id":110,"l":"AMRATER","v":["area","armera","arta","errata","mara","martera","mata","matar","matare","mera","meta","metrar","rama","rata","rate","reta","tarm","team","tema","trea"]},{"id":111,"l":"AKRATER","v":["akta","akter","aktra","aktre","area","arrak","arta","errata","karat","karate","kareta","kart","karta","kartera","katarr","krater","raka","rakar","raket","rakt","rata","rate","reka","reta","teak","trea"]},{"id":112,"l":"AKMRTER","v":["akter","aktre","kamrer","karm","kart","keram","kram","krater","makt","mark","meka","mera","meta","metrar","raket","rakt","rate","reka","reta","tarm","teak","team","tema","trea"]},{"id":113,"l":"AKMRAER","v":["area","armera","arrak","kamera","kamrar","kamrer","karm","karma","keram","kram","krama","kramar","kramare","maka","makare","mara","mark","markera","meka","mera","raka","rakar","rama","reka"]},{"id":114,"l":"AKMRATR","v":["akta","aktra","arma","arrak","arta","kamrar","kamrat","karat","karm","karma","kart","karta","katarr","kram","krama","kramar","maka","makt","mara","mark","mata","matar","raka","rakar","rakt","rama","rata","tarm"]},{"id":115,"l":"ISKFTER","v":["etik","etisk","fiser","fisk","fiske","fris","frisk","frist","frites","iste","ister","kefir","kite","kreti","kris","krit","rike","rikt","risk","riste","rits","sikt","sikte","skift","skifte","skir","skit","skri","skrift","strike"]}];puzzles.forEach(x=>x.n=x.v.length);let puzzle=null;let letters=[],selected=[],room=null,player=1,channel=null,mode="solo",soloScore=0;const TOTAL_TIME_MS=300000;let timeoutLock=false;
+const puzzles=[{"id":101,"l":"AKTTFRI","v":["fait","fakir","farit","fart","fika","fira","frakt","fria","frita","ifatt","ikraft","kart","katt","kitta","kraft","krita","rakit","rakt","ratt","rikta","rita","taft","takt","trafik","trakt"]},{"id":102,"l":"ASKTTFR","v":["fars","fart","fast","frakt","fras","kart","kast","katt","krafs","kraft","kras","rakt","rask","rast","ratt","saft","skaft","skatt","skratt","stark","start","stat","tafs","taft","takt","trakt","trast","tsar"]},{"id":103,"l":"ASRNDEN","v":["andre","anse","dans","denna","deras","enda","ensa","nedan","nedrans","nesa","rand","rann","reda","redan","rena","rensa","resa","sade","sand","sann","sedan","sena","snar"]},{"id":104,"l":"ASTRNEN","v":["anse","ante","aster","ensa","etsa","nesa","rann","rast","rate","rena","renast","rensa","resa","reta","sann","sate","sena","senat","snar","stan","stare","stena","trans","trea","tsar"]},{"id":105,"l":"OKLBARN","v":["banko","baron","boka","bona","karbol","karbon","klon","klona","klor","kobra","kola","kolbarn","kona","kora","koral","koran","korn","kron","krona","oklar","oral","orka","orkan"]},{"id":106,"l":"OSKLBAN","v":["balsko","banko","bansko","boka","bona","kaos","klon","klona","kola","kona","kosa","loska","nosa","skol","skola","skona","slok","sloka","snok","snoka","sola","solka","sona"]},{"id":107,"l":"OSKLBAR","v":["balsko","boka","brosk","kaos","karbol","klor","kobra","kola","kora","koral","kors","korsa","kosa","loska","oklar","oral","orka","orsak","rosa","skol","skola","slok","sloka","sola","solka","sork","sorl","sorla"]},{"id":108,"l":"ÖRNSAKE","v":["knös","krön","kröna","köra","röka","röna","röse","skröna","skön","sköna","skör","snöa","snör","snöra","snöre","söka","sökar","sökare","söner","öken","önska","önske","öres","öskar"]},{"id":109,"l":"ÖGRNSAK","v":["angörs","grön","grönas","grönsak","grönska","göka","göra","knös","krön","kröna","köra","röka","rökgas","röna","skröna","skön","sköna","skör","snöa","snör","snöra","söka","sökar","ögna","önska","öskar"]},{"id":110,"l":"AMRATER","v":["area","armera","arta","errata","mara","martera","mata","matar","matare","mera","meta","metrar","rama","rata","rate","reta","tarm","team","tema","trea"]},{"id":111,"l":"AKRATER","v":["akta","akter","aktra","aktre","area","arrak","arta","errata","karat","karate","kareta","kart","karta","kartera","katarr","krater","raka","rakar","raket","rakt","rata","rate","reka","reta","teak","trea"]},{"id":112,"l":"AKMRTER","v":["akter","aktre","kamrer","karm","kart","keram","kram","krater","makt","mark","meka","mera","meta","metrar","raket","rakt","rate","reka","reta","tarm","teak","team","tema","trea"]},{"id":113,"l":"AKMRAER","v":["area","armera","arrak","kamera","kamrar","kamrer","karm","karma","keram","kram","krama","kramar","kramare","maka","makare","mara","mark","markera","meka","mera","raka","rakar","rama","reka"]},{"id":114,"l":"AKMRATR","v":["akta","aktra","arma","arrak","arta","kamrar","kamrat","karat","karm","karma","kart","karta","katarr","kram","krama","kramar","maka","makt","mara","mark","mata","matar","raka","rakar","rakt","rama","rata","tarm"]},{"id":115,"l":"ISKFTER","v":["etik","etisk","fiser","fisk","fiske","fris","frisk","frist","frites","iste","ister","kefir","kite","kreti","kris","krit","rike","rikt","risk","riste","rits","sikt","sikte","skift","skifte","skir","skit","skri","skrift","strike"]}];puzzles.forEach(x=>x.n=x.v.length);let puzzle=null;let letters=[],selected=[],room=null,player=1,channel=null,mode="solo",soloScore=0;const TOTAL_TIME_MS=300000,STRESS_TIME_MS=180000;let timeoutLock=false,stressEndsAt=0,stressTimerInterval=null,stressFinished=false;
 const $=id=>document.getElementById(id),uid=()=>crypto.randomUUID(),clientId=uid();let onlineSelected=false;
 const HIGHSCORE_KEY="ordduellenHighscores";
 function scoreFromProgress(found,total){return total>0&&found>=total?50:Math.max(0,found)}
@@ -1192,18 +1233,25 @@ function getHighscores(){
     return Array.isArray(scores)?scores:[];
   }catch(_e){return[]}
 }
-function renderHighscores(){
-  const list=$("highscoreList"),empty=$("highscoreEmpty");
+function renderHighscoreList(listId,emptyId,kind){
+  const list=$(listId),empty=$(emptyId);
   if(!list||!empty)return;
-  const scores=getHighscores().sort((a,b)=>b.score-a.score||a.remaining-b.remaining).slice(0,20);
+  const scores=getHighscores()
+    .filter(x=>(x.mode||"solo")===kind)
+    .sort((a,b)=>b.score-a.score||a.remaining-b.remaining)
+    .slice(0,20);
   list.innerHTML=scores.map((x,i)=>"<li><span>"+(i+1)+". "+(x.name||"---")+" · "+x.score+" poäng</span><span>"+x.remaining+" ord kvar</span></li>").join("");
   empty.classList.toggle("hidden",scores.length>0);
 }
-function saveHighscore(name,score,remaining){
+function renderHighscores(){
+  renderHighscoreList("highscoreList","highscoreEmpty","solo");
+  renderHighscoreList("stressHighscoreList","stressHighscoreEmpty","stress");
+}
+function saveHighscore(name,score,remaining,kind="solo"){
   const scores=getHighscores();
-  scores.push({name,score,remaining,at:new Date().toISOString()});
+  scores.push({name,score,remaining,mode:kind,at:new Date().toISOString()});
   scores.sort((a,b)=>b.score-a.score||a.remaining-b.remaining);
-  try{localStorage.setItem(HIGHSCORE_KEY,JSON.stringify(scores.slice(0,20)))}catch(_e){}
+  try{localStorage.setItem(HIGHSCORE_KEY,JSON.stringify(scores.slice(0,80)))}catch(_e){}
   renderHighscores();
 }
 renderHighscores();
@@ -1329,7 +1377,7 @@ function validateSaolWord(word){
   const valid=WORD_SET.has(normalized)&&canBuildWord(normalized,boardLetters);
   return {ok:true,valid};
 }
-function puzzleTotal(){return puzzle&&Array.isArray(puzzle.v)?puzzle.v.length:0} function showGame(){ $("home").classList.add("hidden");$("home").style.display="none";if($("onlineScreen"))$("onlineScreen").classList.add("hidden");$("game").classList.remove("hidden");$("game").style.display="block";$("possibleCount").textContent=puzzle?puzzleTotal():"20+";if($("timers"))$("timers").classList.toggle("hidden",mode!=="online");if($("finishSolo"))$("finishSolo").classList.toggle("hidden",mode!=="solo");if($("leaveOnline"))$("leaveOnline").classList.toggle("hidden",mode!=="online");render()}
+function puzzleTotal(){return puzzle&&Array.isArray(puzzle.v)?puzzle.v.length:0} function showGame(){ $("home").classList.add("hidden");$("home").style.display="none";if($("onlineScreen"))$("onlineScreen").classList.add("hidden");$("game").classList.remove("hidden");$("game").style.display="block";$("possibleCount").textContent=puzzle?puzzleTotal():"20+";if($("timers"))$("timers").classList.toggle("hidden",mode!=="online");if($("stressTimer"))$("stressTimer").classList.toggle("hidden",mode!=="stress");if($("finishSolo"))$("finishSolo").classList.toggle("hidden",mode==="online");if($("leaveOnline"))$("leaveOnline").classList.toggle("hidden",mode!=="online");render()}
 function syncPuzzleFromRoom(){
   if(!room||!room.letters)return;
   const board=room.letters;
@@ -1358,7 +1406,7 @@ function scrollHistoryToLatest(){
 }
 function remainingWords(){
   const total=puzzle?puzzleTotal():0;
-  if(mode==="solo")return Math.max(0,total-soloScore);
+  if(mode==="solo"||mode==="stress")return Math.max(0,total-soloScore);
   if(room){
     const played=Array.isArray(room.played_words)?room.played_words:[];
     return Math.max(0,total-played.length);
@@ -1434,7 +1482,7 @@ function updateTimers(){
   if(room.status==="playing"&&playerTimeMs(room.current_player)<=0)expireCurrentTurn();
 }
 setInterval(updateTimers,250);
-function render(){if($("timers"))$("timers").classList.toggle("hidden",mode!=="online");if($("possibleCount"))$("possibleCount").textContent=remainingWords();const b=$("board");b.innerHTML="";letters.forEach((l,i)=>{const e=document.createElement("button");e.className="letter-piece p"+i+(i===0?" center":"")+(selected.includes(i)?" selected":"");e.textContent=l;e.disabled=mode==="online"&&(!room||room.status!=="playing"||room.current_player!==player);e.onclick=()=>{selected.includes(i)?selected=selected.filter(x=>x!==i):selected.push(i);render()};b.appendChild(e)});(()=>{const e=$("word");if(e)e.textContent=selected.map(i=>letters[i]).join("")})();if(mode==="solo"){$("history").classList.remove("hidden");$("historyCount").textContent="("+soloPlayed.length+")";$("historyWords").innerHTML=soloPlayed.length?soloPlayed.map((w,i)=>'<span class="history-word"><b>'+(i+1)+'.</b>&nbsp; '+w.toUpperCase()+(w.length===letters.length?' <span class="gold-star" title="Alla bokstäver">★</span>':'')+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("turn").classList.add("word-preview");$("turn").textContent=selected.length?selected.map(i=>letters[i]).join(""):"Ditt ord";$("myScore")&&($("myScore").textContent=soloScore);$("otherScore")&&($("otherScore").textContent="–")}else if(room){$("history").classList.remove("hidden");const pw=Array.isArray(room.played_words)?room.played_words:[];$("historyCount").textContent="("+pw.length+")";$("historyWords").innerHTML=pw.length?pw.map(x=>'<span class="history-word p'+x.player+'">'+x.word.toUpperCase()+(x.word.length===letters.length?' <span class="gold-star" title="Alla bokstäver">★</span>':'')+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("myScore")&&($("myScore").textContent=player===1?room.host_score:room.guest_score);$("otherScore")&&($("otherScore").textContent=player===1?room.guest_score:room.host_score);$("turn").classList.add("word-preview");$("turn").textContent=selected.length?selected.map(i=>letters[i]).join(""):"Ditt ord";updateTimers();updateResultModal()}}
+function render(){if($("timers"))$("timers").classList.toggle("hidden",mode!=="online");if($("possibleCount"))$("possibleCount").textContent=remainingWords();const b=$("board");b.innerHTML="";letters.forEach((l,i)=>{const e=document.createElement("button");e.className="letter-piece p"+i+(i===0?" center":"")+(selected.includes(i)?" selected":"");e.textContent=l;e.disabled=mode==="online"&&(!room||room.status!=="playing"||room.current_player!==player);e.onclick=()=>{selected.includes(i)?selected=selected.filter(x=>x!==i):selected.push(i);render()};b.appendChild(e)});(()=>{const e=$("word");if(e)e.textContent=selected.map(i=>letters[i]).join("")})();if(mode==="solo"||mode==="stress"){$("history").classList.remove("hidden");$("historyCount").textContent="("+soloPlayed.length+")";$("historyWords").innerHTML=soloPlayed.length?soloPlayed.map((w,i)=>'<span class="history-word"><b>'+(i+1)+'.</b>&nbsp; '+w.toUpperCase()+(w.length===letters.length?' <span class="gold-star" title="Alla bokstäver">★</span>':'')+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("turn").classList.add("word-preview");$("turn").textContent=selected.length?selected.map(i=>letters[i]).join(""):"Ditt ord";$("myScore")&&($("myScore").textContent=soloScore);$("otherScore")&&($("otherScore").textContent="–")}else if(room){$("history").classList.remove("hidden");const pw=Array.isArray(room.played_words)?room.played_words:[];$("historyCount").textContent="("+pw.length+")";$("historyWords").innerHTML=pw.length?pw.map(x=>'<span class="history-word p'+x.player+'">'+x.word.toUpperCase()+(x.word.length===letters.length?' <span class="gold-star" title="Alla bokstäver">★</span>':'')+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("myScore")&&($("myScore").textContent=player===1?room.host_score:room.guest_score);$("otherScore")&&($("otherScore").textContent=player===1?room.guest_score:room.host_score);$("turn").classList.add("word-preview");$("turn").textContent=selected.length?selected.map(i=>letters[i]).join(""):"Ditt ord";updateTimers();updateResultModal()}}
 function pickPuzzle(){
   return generateRandomPuzzle();
 }
@@ -1448,23 +1496,53 @@ function hydrateCurrentPuzzle(){
     if($("possibleCount"))$("possibleCount").textContent=puzzleTotal();
   }
 }
-async function localStart(){
-  const btn=$("soloStart");
+function stopStressTimer(){
+  if(stressTimerInterval){clearInterval(stressTimerInterval);stressTimerInterval=null}
+}
+function updateStressTimer(){
+  if(mode!=="stress"||!stressEndsAt)return;
+  const left=Math.max(0,stressEndsAt-Date.now());
+  if($("stressTimer"))$("stressTimer").innerHTML="Tid kvar <b>"+formatTime(left)+"</b>";
+  if(left<=0&&!stressFinished){
+    stressFinished=true;
+    stopStressTimer();
+    finishSoloRound(true);
+  }
+}
+function startStressTimer(){
+  stopStressTimer();
+  stressFinished=false;
+  stressEndsAt=Date.now()+STRESS_TIME_MS;
+  updateStressTimer();
+  stressTimerInterval=setInterval(updateStressTimer,250);
+}
+async function startSoloMode(kind){
+  const btn=kind==="stress"?$("stressStart"):$("freeStart");
   if(btn?.disabled)return;
   if(btn)btn.disabled=true;
   try{
     await ensureWordBank();
-    mode="solo";
+    mode=kind;
     letters=pickPuzzle();
     soloScore=0;soloPlayed=[];selected=[];
     if($("turn")){$("turn").classList.add("word-preview");$("turn").textContent="Ditt ord"}
     showGame();
     hydrateCurrentPuzzle();
+    if(kind==="stress")startStressTimer();
   }finally{
     if(btn)btn.disabled=false;
   }
 }
-$("soloStart").onclick=localStart;
+$("soloStart").onclick=()=>{
+  $("mainMenu").classList.add("hidden");
+  $("soloModeMenu").classList.remove("hidden");
+};
+$("soloModeBack").onclick=()=>{
+  $("soloModeMenu").classList.add("hidden");
+  $("mainMenu").classList.remove("hidden");
+};
+$("freeStart").onclick=()=>startSoloMode("solo");
+$("stressStart").onclick=()=>startSoloMode("stress");
 $("onlineStart").onclick=()=>{
   $("home").classList.add("hidden");
   $("home").style.display="none";
@@ -1617,7 +1695,7 @@ async function createRoom(){mode="online";player=1;await ensureWordBank();letter
 async function joinRoom(){await ensureWordBank();const code=$("roomCode").value.trim().toUpperCase();const {data,error}=await sb.from("ordduellen_rooms").select("*").eq("code",code).single();if(error||!data){$("homeMsg").textContent="Rummet hittades inte.";return}if(data.guest_id){$("homeMsg").textContent="Rummet är fullt.";return}player=2;mode="online";room=data;letters=[...room.letters];syncPuzzleFromRoom();if(!puzzle||!Array.isArray(puzzle.v)){$("homeMsg").textContent="Spelplanen kunde inte läsas. Ladda om sidan och försök igen.";return}const {data:updated,error:e}=await sb.from("ordduellen_rooms").update({guest_id:clientId,status:"playing",turn_started_at:new Date().toISOString()}).eq("id",data.id).is("guest_id",null).select().single();if(e||!updated){$("homeMsg").textContent="Kunde inte ansluta.";return}room=updated;letters=[...room.letters];$("homeMsg").textContent="";openRoom();showGame()}
 function openRoom(){letters=[...room.letters];syncPuzzleFromRoom();$("history").classList.remove("hidden");$("roomInfo").classList.remove("hidden");$("code").textContent=room.code;if(channel)sb.removeChannel(channel);channel=sb.channel("ordduellen-"+room.id).on("postgres_changes",{event:"UPDATE",schema:"public",table:"ordduellen_rooms",filter:"id=eq."+room.id},p=>{const wasMyTurn=room&&room.status==="playing"&&room.current_player===player;room=p.new;letters=[...room.letters];selected=[];const isMyTurn=room.status==="playing"&&room.current_player===player;if(!wasMyTurn&&isMyTurn&&navigator.vibrate)navigator.vibrate([120,60,120]);if(room.status==="playing"&&!$("createdRoom").classList.contains("hidden")){$("createdRoom").classList.add("hidden");showGame()}else render()}).subscribe()}
 $("create").onclick=createRoom;$("join").onclick=joinRoom;$("shuffle").onclick=()=>{const outer=letters.slice(1);outer.sort(()=>Math.random()-.5);letters=[letters[0],...outer];selected=[];render()};$("clear").onclick=()=>{selected=[];$("msg").textContent="";render()};
-$("submit").onclick=async()=>{const w=selected.map(i=>letters[i]).join("").toLowerCase();const msg=$("msg");msg.classList.remove("error","success");if(!selected.includes(0)){msg.textContent="Mittenbokstaven måste vara med.";msg.classList.add("error");return}if(w.length<4){msg.textContent="Minst 4 bokstäver.";msg.classList.add("error");return}const saolResult=validateSaolWord(w);if(!saolResult.valid){msg.textContent="Ej SAOL-grundform: "+w.toUpperCase();msg.classList.add("error");return}if(mode==="solo"){if(soloPlayed.includes(w)){$("msg").textContent="Det ordet är redan lagt!";$("msg").classList.add("error");return}soloPlayed.push(w);soloScore++;selected=[];$("msg").textContent=w.toUpperCase()+" registrerat";$("msg").classList.add("success");render();return}if(!room||room.current_player!==player)return;const played=Array.isArray(room.played_words)?room.played_words:[];if(played.some(x=>x.word.toLowerCase()===w)){$("msg").textContent="Det ordet är redan lagt!";$("msg").classList.add("error");return}const remaining=playerTimeMs(player);if(remaining<=0){msg.textContent="Din tid är slut.";msg.classList.add("error");expireCurrentTurn();return}const patch={last_word:w,current_player:player===1?2:1,turn_started_at:new Date().toISOString(),played_words:[...played,{word:w,player,at:new Date().toISOString()}]};if(player===1){patch.host_score=room.host_score+1;patch.host_time_ms=remaining}else{patch.guest_score=room.guest_score+1;patch.guest_time_ms=remaining};const {data,error}=await sb.from("ordduellen_rooms").update(patch).eq("id",room.id).eq("current_player",player).select().single();if(error){$("msg").textContent="Kunde inte lägga ord.";$("msg").classList.add("error");return}room=data;selected=[];$("msg").textContent=w.toUpperCase()+" lagt. Turen går över.";$("msg").classList.add("success");render()};
+$("submit").onclick=async()=>{const w=selected.map(i=>letters[i]).join("").toLowerCase();const msg=$("msg");msg.classList.remove("error","success");if(!selected.includes(0)){msg.textContent="Mittenbokstaven måste vara med.";msg.classList.add("error");return}if(w.length<4){msg.textContent="Minst 4 bokstäver.";msg.classList.add("error");return}const saolResult=validateSaolWord(w);if(!saolResult.valid){msg.textContent="Ej SAOL-grundform: "+w.toUpperCase();msg.classList.add("error");return}if(mode==="solo"||mode==="stress"){if(soloPlayed.includes(w)){$("msg").textContent="Det ordet är redan lagt!";$("msg").classList.add("error");return}soloPlayed.push(w);soloScore++;selected=[];$("msg").textContent=w.toUpperCase()+" registrerat";$("msg").classList.add("success");render();return}if(!room||room.current_player!==player)return;const played=Array.isArray(room.played_words)?room.played_words:[];if(played.some(x=>x.word.toLowerCase()===w)){$("msg").textContent="Det ordet är redan lagt!";$("msg").classList.add("error");return}const remaining=playerTimeMs(player);if(remaining<=0){msg.textContent="Din tid är slut.";msg.classList.add("error");expireCurrentTurn();return}const patch={last_word:w,current_player:player===1?2:1,turn_started_at:new Date().toISOString(),played_words:[...played,{word:w,player,at:new Date().toISOString()}]};if(player===1){patch.host_score=room.host_score+1;patch.host_time_ms=remaining}else{patch.guest_score=room.guest_score+1;patch.guest_time_ms=remaining};const {data,error}=await sb.from("ordduellen_rooms").update(patch).eq("id",room.id).eq("current_player",player).select().single();if(error){$("msg").textContent="Kunde inte lägga ord.";$("msg").classList.add("error");return}room=data;selected=[];$("msg").textContent=w.toUpperCase()+" lagt. Turen går över.";$("msg").classList.add("success");render()};
 $("leaveOnline").onclick=async()=>{
   if(mode!=="online"||!room)return;
   const leavingRoom=room;
@@ -1631,21 +1709,24 @@ $("leaveOnline").onclick=async()=>{
   returnHome();
 };
 let pendingSoloResult=null;
-$("finishSolo").onclick=()=>{
-  if(mode!=="solo")return;
+function finishSoloRound(timeExpired=false){
+  if(mode!=="solo"&&mode!=="stress")return;
+  stopStressTimer();
+  const resultMode=mode;
   const remaining=remainingWords();
   const total=puzzleTotal();
   const found=Math.max(0,total-remaining);
-  const score=scoreFromProgress(found,total);
-  pendingSoloResult={score,remaining};
-  $("resultTitle").textContent="Rundan avslutad";
-  $("resultText").textContent="Du fick "+score+" poäng. "+remaining+" ord kvar.";
+  const score=resultMode==="stress"?found:scoreFromProgress(found,total);
+  pendingSoloResult={score,remaining,mode:resultMode};
+  $("resultTitle").textContent=timeExpired?"Tiden är slut!":"Rundan avslutad";
+  $("resultText").textContent=(resultMode==="stress"?"Du hittade ":"Du fick ")+score+(resultMode==="stress"?" ord på 3 minuter.":" poäng. "+remaining+" ord kvar.");
   $("highscoreNameWrap").classList.remove("hidden");
   $("resultHome").classList.add("hidden");
   $("highscoreName").value="";
   $("resultModal").classList.remove("hidden");
   setTimeout(()=>$("highscoreName")?.focus(),50);
-};
+}
+$("finishSolo").onclick=()=>finishSoloRound(false);
 $("highscoreName").addEventListener("input",e=>{
   e.target.value=e.target.value.toUpperCase().replace(/[^A-ZÅÄÖ0-9]/g,"").slice(0,3);
 });
@@ -1657,13 +1738,15 @@ $("saveHighscoreBtn").onclick=()=>{
     $("highscoreName").focus();
     return;
   }
-  saveHighscore(name,pendingSoloResult.score,pendingSoloResult.remaining);
+  saveHighscore(name,pendingSoloResult.score,pendingSoloResult.remaining,pendingSoloResult.mode||"solo");
   $("resultText").textContent=name+" sparades med "+pendingSoloResult.score+" poäng.";
   pendingSoloResult=null;
   $("highscoreNameWrap").classList.add("hidden");
   $("resultHome").classList.remove("hidden");
 };
 function returnHome(){
+  stopStressTimer();
+  stressEndsAt=0;stressFinished=false;
   if(channel){sb.removeChannel(channel);channel=null}
   room=null;selected=[];
   $("msg").textContent="";
@@ -1675,6 +1758,8 @@ function returnHome(){
   $("onlinePanel").classList.add("hidden");
   $("createdRoom").classList.add("hidden");
   if($("leaveOnline"))$("leaveOnline").classList.add("hidden");
+  if($("stressTimer"))$("stressTimer").classList.add("hidden");
+  $("soloModeMenu").classList.add("hidden");
   $("mainMenu").classList.remove("hidden");
   renderHighscores();
 }
