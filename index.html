@@ -986,6 +986,7 @@ html,body,.app{
           <p>Bygg ord av de sju bokstäverna.</p>
           <p>Mittenbokstaven måste alltid vara med och varje bokstav får bara användas en gång.</p>
           <p>Orden måste vara minst fyra bokstäver långa.</p>
+          <p>I sololäget får du 1 poäng per hittat ord. Hittar du alla ord på spelplanen får du 50 poäng.</p>
           <p>I onlineläge turas spelarna om. Varje spelare har totalt fem minuter som bara räknas under den egna turen.</p>
         </div>
       </details>
@@ -1045,7 +1046,7 @@ html,body,.app{
 </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
-const APP_VERSION="20260919-1642";
+const APP_VERSION="20260919-1647";
 async function ensureLatestVersion(){
   try{
     const res=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
