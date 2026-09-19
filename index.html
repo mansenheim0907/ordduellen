@@ -889,6 +889,13 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
   opacity:.65!important;
   cursor:wait!important;
 }
+</style><style id="game-result-modal-v1">
+.result-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(48,28,16,.55);backdrop-filter:blur(3px)}
+.result-modal.hidden{display:none!important}
+.result-card{width:min(88vw,390px);padding:26px 20px 22px;text-align:center;background:linear-gradient(#fff7e9,#f1d49f);border:6px solid #71431f;outline:2px solid #392216;border-radius:22px;box-shadow:0 12px 0 #4c2d1b,0 20px 42px rgba(0,0,0,.28);color:#3b2a1e}
+.result-card h2{margin:0 0 10px;font-size:clamp(2rem,8vw,3rem);line-height:1}
+.result-card p{margin:8px 0 18px;font-size:1.05rem;font-weight:800}
+.result-card button{width:100%;padding:14px 18px;border:4px solid #5d351f;border-radius:14px;background:linear-gradient(#4f9b52,#2e7337);color:white;font:inherit;font-weight:1000;font-size:1.15rem;box-shadow:0 5px #385122}
 </style></head>
 <body><main class="app">
 <section id="home">
@@ -954,9 +961,17 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
   <div id="msg" class="message"></div>
   <div id="history" class="word-book hidden"><h3>▤ Lagda ord <span id="historyCount">(0)</span></h3><div id="historyWords"></div></div>
   <div class="wood-actions"><button id="shuffle">↝ Blanda</button><button id="clear">▣ Rensa</button><button id="submit">➤ Lägg ord</button><button id="back" class="home-link" aria-label="Till startsidan">‹ Startsida</button></div>
-</div></section></main>
+</div></section>
+<div id="resultModal" class="result-modal hidden" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+  <div class="result-card">
+    <h2 id="resultTitle">Matchen är slut</h2>
+    <p id="resultText"></p>
+    <button id="resultHome" type="button">Till startsidan</button>
+  </div>
+</div>
+</main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
-const APP_VERSION="20260919-1005";
+const APP_VERSION="20260919-1038";
 async function ensureLatestVersion(){
   try{
     const res=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
@@ -977,7 +992,14 @@ const SB_URL="https://vihncukhitijhrvgvonw.supabase.co",SB_KEY="sb_publishable_c
 const puzzles=[{"id":101,"l":"AKTTFRI","v":["fait","fakir","farit","fart","fika","fira","frakt","fria","frita","ifatt","ikraft","kart","katt","kitta","kraft","krita","rakit","rakt","ratt","rikta","rita","taft","takt","trafik","trakt"]},{"id":102,"l":"ASKTTFR","v":["fars","fart","fast","frakt","fras","kart","kast","katt","krafs","kraft","kras","rakt","rask","rast","ratt","saft","skaft","skatt","skratt","stark","start","stat","tafs","taft","takt","trakt","trast","tsar"]},{"id":103,"l":"ASRNDEN","v":["andre","anse","dans","denna","deras","enda","ensa","nedan","nedrans","nesa","rand","rann","reda","redan","rena","rensa","resa","sade","sand","sann","sedan","sena","snar"]},{"id":104,"l":"ASTRNEN","v":["anse","ante","aster","ensa","etsa","nesa","rann","rast","rate","rena","renast","rensa","resa","reta","sann","sate","sena","senat","snar","stan","stare","stena","trans","trea","tsar"]},{"id":105,"l":"OKLBARN","v":["banko","baron","boka","bona","karbol","karbon","klon","klona","klor","kobra","kola","kolbarn","kona","kora","koral","koran","korn","kron","krona","oklar","oral","orka","orkan"]},{"id":106,"l":"OSKLBAN","v":["balsko","banko","bansko","boka","bona","kaos","klon","klona","kola","kona","kosa","loska","nosa","skol","skola","skona","slok","sloka","snok","snoka","sola","solka","sona"]},{"id":107,"l":"OSKLBAR","v":["balsko","boka","brosk","kaos","karbol","klor","kobra","kola","kora","koral","kors","korsa","kosa","loska","oklar","oral","orka","orsak","rosa","skol","skola","slok","sloka","sola","solka","sork","sorl","sorla"]},{"id":108,"l":"ÖRNSAKE","v":["knös","krön","kröna","köra","röka","röna","röse","skröna","skön","sköna","skör","snöa","snör","snöra","snöre","söka","sökar","sökare","söner","öken","önska","önske","öres","öskar"]},{"id":109,"l":"ÖGRNSAK","v":["angörs","grön","grönas","grönsak","grönska","göka","göra","knös","krön","kröna","köra","röka","rökgas","röna","skröna","skön","sköna","skör","snöa","snör","snöra","söka","sökar","ögna","önska","öskar"]},{"id":110,"l":"AMRATER","v":["area","armera","arta","errata","mara","martera","mata","matar","matare","mera","meta","metrar","rama","rata","rate","reta","tarm","team","tema","trea"]},{"id":111,"l":"AKRATER","v":["akta","akter","aktra","aktre","area","arrak","arta","errata","karat","karate","kareta","kart","karta","kartera","katarr","krater","raka","rakar","raket","rakt","rata","rate","reka","reta","teak","trea"]},{"id":112,"l":"AKMRTER","v":["akter","aktre","kamrer","karm","kart","keram","kram","krater","makt","mark","meka","mera","meta","metrar","raket","rakt","rate","reka","reta","tarm","teak","team","tema","trea"]},{"id":113,"l":"AKMRAER","v":["area","armera","arrak","kamera","kamrar","kamrer","karm","karma","keram","kram","krama","kramar","kramare","maka","makare","mara","mark","markera","meka","mera","raka","rakar","rama","reka"]},{"id":114,"l":"AKMRATR","v":["akta","aktra","arma","arrak","arta","kamrar","kamrat","karat","karm","karma","kart","karta","katarr","kram","krama","kramar","maka","makt","mara","mark","mata","matar","raka","rakar","rakt","rama","rata","tarm"]},{"id":115,"l":"ISKFTER","v":["etik","etisk","fiser","fisk","fiske","fris","frisk","frist","frites","iste","ister","kefir","kite","kreti","kris","krit","rike","rikt","risk","riste","rits","sikt","sikte","skift","skifte","skir","skit","skri","skrift","strike"]}];puzzles.forEach(x=>x.n=x.v.length);let puzzle=null;let letters=[],selected=[],room=null,player=1,channel=null,mode="solo",soloScore=0;const TOTAL_TIME_MS=300000;let timeoutLock=false;
 const $=id=>document.getElementById(id),uid=()=>crypto.randomUUID(),clientId=uid();let onlineSelected=false;
 function makeLetters(s){const a=[...s],center=a.shift();a.sort(()=>Math.random()-.5);return[center,...a.slice(0,6)]}
-const WORD_BANK=[...new Set(puzzles.flatMap(x=>x.v.map(w=>w.toLowerCase())))];
+const EXTRA_WORDS=[
+  "mack","tack","racket","rack","back","backa","bock","dock","ficka","fick","hack","hacka",
+  "jack","jacka","lack","lacka","lock","locka","pack","packa","rock","rocka","säck","säckar",
+  "ticka","tryck","trycka","tycka","lycka","lyckas","mycket","nyckel","nycklar","brick","bricka",
+  "blick","block","blocka","dricka","drick","klocka","klick","klicka","snack","snacka","stack",
+  "stick","sticka","stock","täck","täcka","väck","väcka","äckel"
+];
+const WORD_BANK=[...new Set([...puzzles.flatMap(x=>x.v.map(w=>w.toLowerCase())),...EXTRA_WORDS])];
 const BOARD_ALPHABET=[..."abcdefghijklmnopqrstuvwxyzåäö"];
 function charCounts(s){const m={};for(const ch of [...s.toLowerCase()])m[ch]=(m[ch]||0)+1;return m}
 function canBuildWord(word,boardLetters){
@@ -1109,6 +1131,25 @@ function formatTime(ms){
   const m=Math.floor(total/60),s=total%60;
   return m+":"+String(s).padStart(2,"0");
 }
+let resultModalRoomId=null;
+function timeoutLoser(){
+  if(!room)return null;
+  if((room.host_time_ms??1)<=0)return 1;
+  if((room.guest_time_ms??1)<=0)return 2;
+  return null;
+}
+function updateResultModal(){
+  const modal=$("resultModal");
+  if(!modal)return;
+  if(mode!=="online"||!room||room.status!=="finished"){modal.classList.add("hidden");return}
+  const loser=timeoutLoser();
+  if(!loser){modal.classList.add("hidden");return}
+  const won=loser!==player;
+  $("resultTitle").textContent=won?"Du vann matchen!":"Du förlorade matchen";
+  $("resultText").textContent=won?"Motståndarens tid tog slut.":"Din tid tog slut.";
+  modal.classList.remove("hidden");
+  resultModalRoomId=room.id;
+}
 async function expireCurrentTurn(){
   if(timeoutLock||!room||room.status!=="playing")return;
   const expired=room.current_player;
@@ -1133,7 +1174,7 @@ function updateTimers(){
   if(room.status==="playing"&&playerTimeMs(room.current_player)<=0)expireCurrentTurn();
 }
 setInterval(updateTimers,250);
-function render(){if($("timers"))$("timers").classList.toggle("hidden",mode!=="online");if($("possibleCount"))$("possibleCount").textContent=remainingWords();const b=$("board");b.innerHTML="";letters.forEach((l,i)=>{const e=document.createElement("button");e.className="letter-piece p"+i+(i===0?" center":"")+(selected.includes(i)?" selected":"");e.textContent=l;e.disabled=mode==="online"&&(!room||room.status!=="playing"||room.current_player!==player);e.onclick=()=>{selected.includes(i)?selected=selected.filter(x=>x!==i):selected.push(i);render()};b.appendChild(e)});(()=>{const e=$("word");if(e)e.textContent=selected.map(i=>letters[i]).join("")})();if(mode==="solo"){$("history").classList.remove("hidden");$("historyCount").textContent="("+soloPlayed.length+")";$("historyWords").innerHTML=soloPlayed.length?soloPlayed.map((w,i)=>'<span class="history-word"><b>'+(i+1)+'.</b>&nbsp; '+w.toUpperCase()+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("turn").classList.add("word-preview");$("turn").textContent=selected.length?selected.map(i=>letters[i]).join(""):"Ditt ord";$("myScore")&&($("myScore").textContent=soloScore);$("otherScore")&&($("otherScore").textContent="–")}else if(room){$("history").classList.remove("hidden");const pw=Array.isArray(room.played_words)?room.played_words:[];$("historyCount").textContent="("+pw.length+")";$("historyWords").innerHTML=pw.length?pw.map(x=>'<span class="history-word p'+x.player+'">'+x.word.toUpperCase()+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("myScore")&&($("myScore").textContent=player===1?room.host_score:room.guest_score);$("otherScore")&&($("otherScore").textContent=player===1?room.guest_score:room.host_score);$("turn").classList.remove("word-preview");$("turn").textContent=room.status==="waiting"?"Väntar på spelare 2…":room.status==="finished"?(playerTimeMs(player)<=0?"Din tid tog slut":"Motståndarens tid tog slut"):room.current_player===player?"Din tur":"Motståndarens tur";updateTimers()}}
+function render(){if($("timers"))$("timers").classList.toggle("hidden",mode!=="online");if($("possibleCount"))$("possibleCount").textContent=remainingWords();const b=$("board");b.innerHTML="";letters.forEach((l,i)=>{const e=document.createElement("button");e.className="letter-piece p"+i+(i===0?" center":"")+(selected.includes(i)?" selected":"");e.textContent=l;e.disabled=mode==="online"&&(!room||room.status!=="playing"||room.current_player!==player);e.onclick=()=>{selected.includes(i)?selected=selected.filter(x=>x!==i):selected.push(i);render()};b.appendChild(e)});(()=>{const e=$("word");if(e)e.textContent=selected.map(i=>letters[i]).join("")})();if(mode==="solo"){$("history").classList.remove("hidden");$("historyCount").textContent="("+soloPlayed.length+")";$("historyWords").innerHTML=soloPlayed.length?soloPlayed.map((w,i)=>'<span class="history-word"><b>'+(i+1)+'.</b>&nbsp; '+w.toUpperCase()+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("turn").classList.add("word-preview");$("turn").textContent=selected.length?selected.map(i=>letters[i]).join(""):"Ditt ord";$("myScore")&&($("myScore").textContent=soloScore);$("otherScore")&&($("otherScore").textContent="–")}else if(room){$("history").classList.remove("hidden");const pw=Array.isArray(room.played_words)?room.played_words:[];$("historyCount").textContent="("+pw.length+")";$("historyWords").innerHTML=pw.length?pw.map(x=>'<span class="history-word p'+x.player+'">'+x.word.toUpperCase()+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("myScore")&&($("myScore").textContent=player===1?room.host_score:room.guest_score);$("otherScore")&&($("otherScore").textContent=player===1?room.guest_score:room.host_score);$("turn").classList.remove("word-preview");$("turn").textContent=room.status==="waiting"?"Väntar på spelare 2…":room.status==="finished"?(playerTimeMs(player)<=0?"Din tid tog slut":"Motståndarens tid tog slut"):room.current_player===player?"Din tur":"Motståndarens tur";updateTimers();updateResultModal()}}
 function pickPuzzle(){
   return generateRandomPuzzle();
 }
@@ -1205,5 +1246,6 @@ async function joinRoom(){const code=$("roomCode").value.trim().toUpperCase();co
 function openRoom(){letters=[...room.letters];syncPuzzleFromRoom();$("history").classList.remove("hidden");$("roomInfo").classList.remove("hidden");$("code").textContent=room.code;if(channel)sb.removeChannel(channel);channel=sb.channel("ordduellen-"+room.id).on("postgres_changes",{event:"UPDATE",schema:"public",table:"ordduellen_rooms",filter:"id=eq."+room.id},p=>{const wasMyTurn=room&&room.status==="playing"&&room.current_player===player;room=p.new;letters=[...room.letters];selected=[];const isMyTurn=room.status==="playing"&&room.current_player===player;if(!wasMyTurn&&isMyTurn&&navigator.vibrate)navigator.vibrate([120,60,120]);if(room.status==="playing"&&!$("createdRoom").classList.contains("hidden")){$("createdRoom").classList.add("hidden");showGame()}else render()}).subscribe()}
 $("create").onclick=createRoom;$("join").onclick=joinRoom;$("shuffle").onclick=()=>{const outer=letters.slice(1);outer.sort(()=>Math.random()-.5);letters=[letters[0],...outer];selected=[];render()};$("clear").onclick=()=>{selected=[];$("msg").textContent="";render()};
 $("submit").onclick=async()=>{const w=selected.map(i=>letters[i]).join("").toLowerCase();const msg=$("msg");msg.classList.remove("error","success");if(!selected.includes(0)){msg.textContent="Mittenbokstaven måste vara med.";msg.classList.add("error");return}if(w.length<4){msg.textContent="Minst 4 bokstäver.";msg.classList.add("error");return}const saolResult=validateSaolWord(w);if(!saolResult.valid){msg.textContent="Ej SAOL-grundform: "+w.toUpperCase();msg.classList.add("error");return}if(mode==="solo"){if(soloPlayed.includes(w)){$("msg").textContent="Det ordet är redan lagt!";$("msg").classList.add("error");return}soloPlayed.push(w);soloScore++;selected=[];$("msg").textContent=w.toUpperCase()+" registrerat";$("msg").classList.add("success");render();return}if(!room||room.current_player!==player)return;const played=Array.isArray(room.played_words)?room.played_words:[];if(played.some(x=>x.word.toLowerCase()===w)){$("msg").textContent="Det ordet är redan lagt!";$("msg").classList.add("error");return}const remaining=playerTimeMs(player);if(remaining<=0){msg.textContent="Din tid är slut.";msg.classList.add("error");expireCurrentTurn();return}const patch={last_word:w,current_player:player===1?2:1,turn_started_at:new Date().toISOString(),played_words:[...played,{word:w,player,at:new Date().toISOString()}]};if(player===1){patch.host_score=room.host_score+1;patch.host_time_ms=remaining}else{patch.guest_score=room.guest_score+1;patch.guest_time_ms=remaining};const {data,error}=await sb.from("ordduellen_rooms").update(patch).eq("id",room.id).eq("current_player",player).select().single();if(error){$("msg").textContent="Kunde inte lägga ord.";$("msg").classList.add("error");return}room=data;selected=[];$("msg").textContent=w.toUpperCase()+" lagt. Turen går över.";$("msg").classList.add("success");render()};
+$("resultHome").onclick=()=>{$("resultModal").classList.add("hidden");$("back").click()};
 $("back").onclick=()=>{if(channel){sb.removeChannel(channel);channel=null}room=null;selected=[];$("msg").textContent="";$("game").classList.add("hidden");$("game").style.display="none";$("home").classList.remove("hidden");$("home").style.display="block";$("roomInfo").classList.add("hidden");$("onlinePanel").classList.add("hidden");$("createdRoom").classList.add("hidden");$("mainMenu").classList.remove("hidden")};
 </script></body></html>
