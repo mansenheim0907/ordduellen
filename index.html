@@ -969,15 +969,9 @@ async function edgeErrorText(error){
   return error.message||String(error);
 }
 async function validateSaolWord(word){
-  try{
-    const {data,error}=await sb.functions.invoke("saol",{body:{word}});
-    if(error)return {ok:false,error:await edgeErrorText(error)};
-    if(!data)return {ok:false,error:"Tomt svar från SAOL-tjänsten"};
-    if(data.ok===false)return {ok:false,error:[data.error,data.detail].filter(Boolean).join(" – ")};
-    return {ok:true,valid:data.valid===true};
-  }catch(e){
-    return {ok:false,error:e?.message||String(e)};
-  }
+  const normalized=(word||"").trim().toLowerCase();
+  const valid=Boolean(puzzle&&Array.isArray(puzzle.v)&&puzzle.v.some(x=>String(x).toLowerCase()===normalized));
+  return {ok:true,valid};
 }
 async function fetchSaolBoard(boardLetters){
   try{
@@ -1004,13 +998,12 @@ function syncPuzzleFromRoom(){
   puzzle=base;
 }
 async function hydratePuzzleFromBoard(boardLetters,basePuzzle){
-  const data=await fetchSaolBoard(boardLetters);
-  if(!data||!data.ok){
-    if($("msg")){$("msg").textContent="SAOL-fel: "+(data?.error||"okänt fel");$("msg").classList.add("error")}
+  const base=basePuzzle||puzzle;
+  if(!base||!Array.isArray(base.v)){
+    if($("msg")){$("msg").textContent="Kunde inte läsa den lokala SAOL-ordlistan.";$("msg").classList.add("error")}
     return false;
   }
-  const base=basePuzzle||puzzle||{id:room?.puzzle_id||0,l:boardLetters};
-  puzzle={...base,v:data.solutions,n:data.count,saolExact:true};
+  puzzle={...base,n:base.v.length,saolExact:true};
   return true;
 }
 function scrollHistoryToLatest(){
