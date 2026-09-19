@@ -1080,7 +1080,8 @@ function generateRandomPuzzle(){
 }
 function validateSaolWord(word){
   const normalized=(word||"").trim().toLowerCase();
-  const valid=Boolean(puzzle&&Array.isArray(puzzle.v)&&puzzle.v.some(x=>String(x).toLowerCase()===normalized));
+  const boardLetters=letters.join("");
+  const valid=WORD_BANK.includes(normalized)&&canBuildWord(normalized,boardLetters);
   return {ok:true,valid};
 }
 function puzzleTotal(){return puzzle&&Array.isArray(puzzle.v)?puzzle.v.length:0} function showGame(){ $("home").classList.add("hidden");$("home").style.display="none";$("game").classList.remove("hidden");$("game").style.display="block";$("possibleCount").textContent=puzzle?puzzleTotal():"20+";if($("timers"))$("timers").classList.toggle("hidden",mode!=="online");render()}
@@ -1093,11 +1094,12 @@ function syncPuzzleFromRoom(){
 }
 function hydratePuzzleFromBoard(boardLetters,basePuzzle){
   const base=basePuzzle||puzzle;
-  if(!base||!Array.isArray(base.v)){
+  if(!base){
     if($("msg")){$("msg").textContent="Kunde inte läsa ordlistan.";$("msg").classList.add("error")}
     return false;
   }
-  puzzle={...base,n:base.v.length,saolExact:true};
+  const words=solutionsForBoard(boardLetters);
+  puzzle={...base,l:boardLetters,v:words,n:words.length,saolExact:true};
   return true;
 }
 function scrollHistoryToLatest(){
