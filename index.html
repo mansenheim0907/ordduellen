@@ -1104,7 +1104,7 @@ html,body,.app{
   <div id="board" class="letter-wheel"></div>
   <div id="msg" class="message"></div>
   <div id="history" class="word-book hidden"><h3>▤ Lagda ord <span id="historyCount">(0)</span></h3><div id="historyWords"></div></div>
-  <div class="wood-actions"><button id="shuffle">↝ Blanda</button><button id="clear">▣ Rensa</button><button id="submit">➤ Lägg ord</button><button id="finishSolo">✓ Avsluta</button></div>
+  <div class="wood-actions"><button id="shuffle">↝ Blanda</button><button id="clear">▣ Rensa</button><button id="submit">➤ Lägg ord</button><button id="finishSolo">✓ Avsluta</button><button id="leaveOnline" class="hidden">✕ Lämna</button></div>
 </div></section>
 <div id="resultModal" class="result-modal hidden" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
   <div class="result-card">
@@ -1120,7 +1120,7 @@ html,body,.app{
 </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
-const APP_VERSION="20260919-1740";
+const APP_VERSION="20260919-1822";
 async function ensureLatestVersion(){
   try{
     const res=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
@@ -1285,7 +1285,7 @@ function validateSaolWord(word){
   const valid=WORD_SET.has(normalized)&&canBuildWord(normalized,boardLetters);
   return {ok:true,valid};
 }
-function puzzleTotal(){return puzzle&&Array.isArray(puzzle.v)?puzzle.v.length:0} function showGame(){ $("home").classList.add("hidden");$("home").style.display="none";if($("onlineScreen"))$("onlineScreen").classList.add("hidden");$("game").classList.remove("hidden");$("game").style.display="block";$("possibleCount").textContent=puzzle?puzzleTotal():"20+";if($("timers"))$("timers").classList.toggle("hidden",mode!=="online");if($("finishSolo"))$("finishSolo").classList.toggle("hidden",mode!=="solo");render()}
+function puzzleTotal(){return puzzle&&Array.isArray(puzzle.v)?puzzle.v.length:0} function showGame(){ $("home").classList.add("hidden");$("home").style.display="none";if($("onlineScreen"))$("onlineScreen").classList.add("hidden");$("game").classList.remove("hidden");$("game").style.display="block";$("possibleCount").textContent=puzzle?puzzleTotal():"20+";if($("timers"))$("timers").classList.toggle("hidden",mode!=="online");if($("finishSolo"))$("finishSolo").classList.toggle("hidden",mode!=="solo");if($("leaveOnline"))$("leaveOnline").classList.toggle("hidden",mode!=="online");render()}
 function syncPuzzleFromRoom(){
   if(!room||!room.letters)return;
   const board=room.letters;
@@ -1345,11 +1345,24 @@ function updateResultModal(){
   const modal=$("resultModal");
   if(!modal)return;
   if(mode!=="online"||!room||room.status!=="finished"){modal.classList.add("hidden");return}
+  const leaveMatch=String(room.last_word||"").match(/^__LEFT_(1|2)__$/);
+  if(leaveMatch){
+    const leaver=Number(leaveMatch[1]);
+    $("resultTitle").textContent=leaver===player?"Du lämnade matchen":"Du vann matchen!";
+    $("resultText").textContent=leaver===player?"Du lämnade matchen.":"Motståndaren lämnade matchen.";
+    $("highscoreNameWrap").classList.add("hidden");
+    $("resultHome").classList.remove("hidden");
+    modal.classList.remove("hidden");
+    resultModalRoomId=room.id;
+    return;
+  }
   const loser=timeoutLoser();
   if(!loser){modal.classList.add("hidden");return}
   const won=loser!==player;
   $("resultTitle").textContent=won?"Du vann matchen!":"Du förlorade matchen";
   $("resultText").textContent=won?"Motståndarens tid tog slut.":"Din tid tog slut.";
+  $("highscoreNameWrap").classList.add("hidden");
+  $("resultHome").classList.remove("hidden");
   modal.classList.remove("hidden");
   resultModalRoomId=room.id;
 }
@@ -1377,7 +1390,7 @@ function updateTimers(){
   if(room.status==="playing"&&playerTimeMs(room.current_player)<=0)expireCurrentTurn();
 }
 setInterval(updateTimers,250);
-function render(){if($("timers"))$("timers").classList.toggle("hidden",mode!=="online");if($("possibleCount"))$("possibleCount").textContent=remainingWords();const b=$("board");b.innerHTML="";letters.forEach((l,i)=>{const e=document.createElement("button");e.className="letter-piece p"+i+(i===0?" center":"")+(selected.includes(i)?" selected":"");e.textContent=l;e.disabled=mode==="online"&&(!room||room.status!=="playing"||room.current_player!==player);e.onclick=()=>{selected.includes(i)?selected=selected.filter(x=>x!==i):selected.push(i);render()};b.appendChild(e)});(()=>{const e=$("word");if(e)e.textContent=selected.map(i=>letters[i]).join("")})();if(mode==="solo"){$("history").classList.remove("hidden");$("historyCount").textContent="("+soloPlayed.length+")";$("historyWords").innerHTML=soloPlayed.length?soloPlayed.map((w,i)=>'<span class="history-word"><b>'+(i+1)+'.</b>&nbsp; '+w.toUpperCase()+(w.length===letters.length?' <span class="gold-star" title="Alla bokstäver">★</span>':'')+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("turn").classList.add("word-preview");$("turn").textContent=selected.length?selected.map(i=>letters[i]).join(""):"Ditt ord";$("myScore")&&($("myScore").textContent=soloScore);$("otherScore")&&($("otherScore").textContent="–")}else if(room){$("history").classList.remove("hidden");const pw=Array.isArray(room.played_words)?room.played_words:[];$("historyCount").textContent="("+pw.length+")";$("historyWords").innerHTML=pw.length?pw.map(x=>'<span class="history-word p'+x.player+'">'+x.word.toUpperCase()+(x.word.length===letters.length?' <span class="gold-star" title="Alla bokstäver">★</span>':'')+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("myScore")&&($("myScore").textContent=player===1?room.host_score:room.guest_score);$("otherScore")&&($("otherScore").textContent=player===1?room.guest_score:room.host_score);$("turn").classList.remove("word-preview");$("turn").textContent=room.status==="waiting"?"Väntar på spelare 2…":room.status==="finished"?(playerTimeMs(player)<=0?"Din tid tog slut":"Motståndarens tid tog slut"):room.current_player===player?"Din tur":"Motståndarens tur";updateTimers();updateResultModal()}}
+function render(){if($("timers"))$("timers").classList.toggle("hidden",mode!=="online");if($("possibleCount"))$("possibleCount").textContent=remainingWords();const b=$("board");b.innerHTML="";letters.forEach((l,i)=>{const e=document.createElement("button");e.className="letter-piece p"+i+(i===0?" center":"")+(selected.includes(i)?" selected":"");e.textContent=l;e.disabled=mode==="online"&&(!room||room.status!=="playing"||room.current_player!==player);e.onclick=()=>{selected.includes(i)?selected=selected.filter(x=>x!==i):selected.push(i);render()};b.appendChild(e)});(()=>{const e=$("word");if(e)e.textContent=selected.map(i=>letters[i]).join("")})();if(mode==="solo"){$("history").classList.remove("hidden");$("historyCount").textContent="("+soloPlayed.length+")";$("historyWords").innerHTML=soloPlayed.length?soloPlayed.map((w,i)=>'<span class="history-word"><b>'+(i+1)+'.</b>&nbsp; '+w.toUpperCase()+(w.length===letters.length?' <span class="gold-star" title="Alla bokstäver">★</span>':'')+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("turn").classList.add("word-preview");$("turn").textContent=selected.length?selected.map(i=>letters[i]).join(""):"Ditt ord";$("myScore")&&($("myScore").textContent=soloScore);$("otherScore")&&($("otherScore").textContent="–")}else if(room){$("history").classList.remove("hidden");const pw=Array.isArray(room.played_words)?room.played_words:[];$("historyCount").textContent="("+pw.length+")";$("historyWords").innerHTML=pw.length?pw.map(x=>'<span class="history-word p'+x.player+'">'+x.word.toUpperCase()+(x.word.length===letters.length?' <span class="gold-star" title="Alla bokstäver">★</span>':'')+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("myScore")&&($("myScore").textContent=player===1?room.host_score:room.guest_score);$("otherScore")&&($("otherScore").textContent=player===1?room.guest_score:room.host_score);$("turn").classList.add("word-preview");$("turn").textContent=selected.length?selected.map(i=>letters[i]).join(""):"Ditt ord";updateTimers();updateResultModal()}}
 function pickPuzzle(){
   return generateRandomPuzzle();
 }
@@ -1494,6 +1507,18 @@ async function joinRoom(){await ensureWordBank();const code=$("roomCode").value.
 function openRoom(){letters=[...room.letters];syncPuzzleFromRoom();$("history").classList.remove("hidden");$("roomInfo").classList.remove("hidden");$("code").textContent=room.code;if(channel)sb.removeChannel(channel);channel=sb.channel("ordduellen-"+room.id).on("postgres_changes",{event:"UPDATE",schema:"public",table:"ordduellen_rooms",filter:"id=eq."+room.id},p=>{const wasMyTurn=room&&room.status==="playing"&&room.current_player===player;room=p.new;letters=[...room.letters];selected=[];const isMyTurn=room.status==="playing"&&room.current_player===player;if(!wasMyTurn&&isMyTurn&&navigator.vibrate)navigator.vibrate([120,60,120]);if(room.status==="playing"&&!$("createdRoom").classList.contains("hidden")){$("createdRoom").classList.add("hidden");showGame()}else render()}).subscribe()}
 $("create").onclick=createRoom;$("join").onclick=joinRoom;$("shuffle").onclick=()=>{const outer=letters.slice(1);outer.sort(()=>Math.random()-.5);letters=[letters[0],...outer];selected=[];render()};$("clear").onclick=()=>{selected=[];$("msg").textContent="";render()};
 $("submit").onclick=async()=>{const w=selected.map(i=>letters[i]).join("").toLowerCase();const msg=$("msg");msg.classList.remove("error","success");if(!selected.includes(0)){msg.textContent="Mittenbokstaven måste vara med.";msg.classList.add("error");return}if(w.length<4){msg.textContent="Minst 4 bokstäver.";msg.classList.add("error");return}const saolResult=validateSaolWord(w);if(!saolResult.valid){msg.textContent="Ej SAOL-grundform: "+w.toUpperCase();msg.classList.add("error");return}if(mode==="solo"){if(soloPlayed.includes(w)){$("msg").textContent="Det ordet är redan lagt!";$("msg").classList.add("error");return}soloPlayed.push(w);soloScore++;selected=[];$("msg").textContent=w.toUpperCase()+" registrerat";$("msg").classList.add("success");render();return}if(!room||room.current_player!==player)return;const played=Array.isArray(room.played_words)?room.played_words:[];if(played.some(x=>x.word.toLowerCase()===w)){$("msg").textContent="Det ordet är redan lagt!";$("msg").classList.add("error");return}const remaining=playerTimeMs(player);if(remaining<=0){msg.textContent="Din tid är slut.";msg.classList.add("error");expireCurrentTurn();return}const patch={last_word:w,current_player:player===1?2:1,turn_started_at:new Date().toISOString(),played_words:[...played,{word:w,player,at:new Date().toISOString()}]};if(player===1){patch.host_score=room.host_score+1;patch.host_time_ms=remaining}else{patch.guest_score=room.guest_score+1;patch.guest_time_ms=remaining};const {data,error}=await sb.from("ordduellen_rooms").update(patch).eq("id",room.id).eq("current_player",player).select().single();if(error){$("msg").textContent="Kunde inte lägga ord.";$("msg").classList.add("error");return}room=data;selected=[];$("msg").textContent=w.toUpperCase()+" lagt. Turen går över.";$("msg").classList.add("success");render()};
+$("leaveOnline").onclick=async()=>{
+  if(mode!=="online"||!room)return;
+  const leavingRoom=room;
+  const marker="__LEFT_"+player+"__";
+  try{
+    const {data,error}=await sb.from("ordduellen_rooms").update({status:"finished",turn_started_at:null,last_word:marker}).eq("id",leavingRoom.id).eq("status","playing").select().single();
+    if(!error&&data)room=data;
+  }catch(_e){}
+  if(channel){sb.removeChannel(channel);channel=null}
+  $("resultModal").classList.add("hidden");
+  returnHome();
+};
 let pendingSoloResult=null;
 $("finishSolo").onclick=()=>{
   if(mode!=="solo")return;
@@ -1538,6 +1563,7 @@ function returnHome(){
   $("roomInfo").classList.add("hidden");
   $("onlinePanel").classList.add("hidden");
   $("createdRoom").classList.add("hidden");
+  if($("leaveOnline"))$("leaveOnline").classList.add("hidden");
   $("mainMenu").classList.remove("hidden");
   renderHighscores();
 }
