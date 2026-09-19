@@ -1023,6 +1023,32 @@ html,body,.app{
 #onlineScreen .soft-divider{display:flex!important;align-items:center!important;gap:10px!important;margin:18px 0!important;text-align:center!important}
 #onlineScreen .soft-divider:before,#onlineScreen .soft-divider:after{content:""!important;height:1px!important;background:#d5c0aa!important;flex:1!important}
 </style>
+<style id="online-scroll-fix-v1">
+#onlineScreen{
+  height:100dvh!important;
+  min-height:0!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-y:contain!important;
+  touch-action:pan-y!important;
+}
+#onlineScreen .online-screen-inner{
+  min-height:100%!important;
+  height:auto!important;
+  padding-bottom:calc(48px + env(safe-area-inset-bottom))!important;
+}
+#onlineScreen .soft-panel{
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+@media(max-height:700px){
+  #onlineScreen .online-screen-inner{padding-top:14px!important}
+  #onlineScreen .online-brand{padding-top:12px!important}
+  #onlineScreen .soft-panel{margin-top:18px!important}
+}
+</style>
 <style id="solo-stress-v1">
 #soloModeMenu{width:min(92%,430px);margin:24px auto 0!important}
 #soloModeMenu h2{margin:6px 0 8px!important;text-align:center}
@@ -1205,7 +1231,7 @@ html,body,.app{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script><script>
-const APP_VERSION="20260919-HS10";
+const APP_VERSION="20260919-ONLINE-SCROLL";
 async function ensureLatestVersion(){
   try{
     const res=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
