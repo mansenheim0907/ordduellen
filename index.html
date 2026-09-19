@@ -537,6 +537,7 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
   font-weight:650!important;
   line-height:1.4!important;
 }
+#home .soft-menu.hidden,#home .soft-panel.hidden{display:none!important}
 #home .soft-menu{
   width:min(100%,430px)!important;
   margin:9vh auto 0!important;
@@ -1031,7 +1032,7 @@ html,body,.app{
   <div id="board" class="letter-wheel"></div>
   <div id="msg" class="message"></div>
   <div id="history" class="word-book hidden"><h3>▤ Lagda ord <span id="historyCount">(0)</span></h3><div id="historyWords"></div></div>
-  <div class="wood-actions"><button id="shuffle">↝ Blanda</button><button id="clear">▣ Rensa</button><button id="submit">➤ Lägg ord</button><button id="finishSolo">✓ Avsluta</button><button id="back" class="home-link" aria-label="Till startsidan">‹ Startsida</button></div>
+  <div class="wood-actions"><button id="shuffle">↝ Blanda</button><button id="clear">▣ Rensa</button><button id="submit">➤ Lägg ord</button><button id="finishSolo">✓ Avsluta</button></div>
 </div></section>
 <div id="resultModal" class="result-modal hidden" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
   <div class="result-card">
@@ -1047,7 +1048,7 @@ html,body,.app{
 </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
-const APP_VERSION="20260919-1652";
+const APP_VERSION="20260919-1701";
 async function ensureLatestVersion(){
   try{
     const res=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
@@ -1417,6 +1418,19 @@ $("saveHighscoreBtn").onclick=()=>{
   $("highscoreNameWrap").classList.add("hidden");
   $("resultHome").classList.remove("hidden");
 };
-$("resultHome").onclick=()=>{$("resultModal").classList.add("hidden");$("highscoreNameWrap").classList.add("hidden");$("resultHome").classList.remove("hidden");pendingSoloResult=null;$("back").click()};
-$("back").onclick=()=>{if(channel){sb.removeChannel(channel);channel=null}room=null;selected=[];$("msg").textContent="";$("game").classList.add("hidden");$("game").style.display="none";$("home").classList.remove("hidden");$("home").style.display="block";$("roomInfo").classList.add("hidden");$("onlinePanel").classList.add("hidden");$("createdRoom").classList.add("hidden");$("mainMenu").classList.remove("hidden");renderHighscores()};
+function returnHome(){
+  if(channel){sb.removeChannel(channel);channel=null}
+  room=null;selected=[];
+  $("msg").textContent="";
+  $("game").classList.add("hidden");
+  $("game").style.display="none";
+  $("home").classList.remove("hidden");
+  $("home").style.display="block";
+  $("roomInfo").classList.add("hidden");
+  $("onlinePanel").classList.add("hidden");
+  $("createdRoom").classList.add("hidden");
+  $("mainMenu").classList.remove("hidden");
+  renderHighscores();
+}
+$("resultHome").onclick=()=>{$("resultModal").classList.add("hidden");$("highscoreNameWrap").classList.add("hidden");$("resultHome").classList.remove("hidden");pendingSoloResult=null;returnHome()};
 </script></body></html>
