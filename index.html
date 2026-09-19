@@ -815,6 +815,14 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
 #home .soft-home::before,#home .soft-home::after{
   pointer-events:none!important;
 }
+</style><style id="history-follow-latest-v36">
+#game .word-book{
+  overflow-y:auto!important;
+  scroll-behavior:smooth!important;
+}
+#game #historyWords{
+  overflow:visible!important;
+}
 </style></head>
 <body><main class="app">
 <section id="home">
@@ -894,6 +902,15 @@ function syncPuzzleFromRoom(){
     puzzle=puzzles.find(x=>x.l[0]===center&&[...x.l.slice(1)].sort().join("")===outer)||null;
   }
 }
+function scrollHistoryToLatest(){
+  const box=$("history");
+  if(!box)return;
+  requestAnimationFrame(()=>{
+    box.scrollTop=box.scrollHeight;
+    const words=$("historyWords");
+    if(words)words.scrollTop=words.scrollHeight;
+  });
+}
 function remainingWords(){
   const total=puzzle?puzzleTotal():0;
   if(mode==="solo")return Math.max(0,total-soloScore);
@@ -940,7 +957,7 @@ function updateTimers(){
   if(room.status==="playing"&&playerTimeMs(room.current_player)<=0)expireCurrentTurn();
 }
 setInterval(updateTimers,250);
-function render(){if($("timers"))$("timers").classList.toggle("hidden",mode!=="online");if($("possibleCount"))$("possibleCount").textContent=remainingWords();const b=$("board");b.innerHTML="";letters.forEach((l,i)=>{const e=document.createElement("button");e.className="letter-piece p"+i+(i===0?" center":"")+(selected.includes(i)?" selected":"");e.textContent=l;e.disabled=mode==="online"&&(!room||room.status!=="playing"||room.current_player!==player);e.onclick=()=>{selected.includes(i)?selected=selected.filter(x=>x!==i):selected.push(i);render()};b.appendChild(e)});(()=>{const e=$("word");if(e)e.textContent=selected.map(i=>letters[i]).join("")})();if(mode==="solo"){$("history").classList.remove("hidden");$("historyCount").textContent="("+soloPlayed.length+")";$("historyWords").innerHTML=soloPlayed.length?soloPlayed.map((w,i)=>'<span class="history-word"><b>'+(i+1)+'.</b>&nbsp; '+w.toUpperCase()+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';$("turn").classList.add("word-preview");$("turn").textContent=selected.length?selected.map(i=>letters[i]).join(""):"Ditt ord";$("myScore")&&($("myScore").textContent=soloScore);$("otherScore")&&($("otherScore").textContent="–")}else if(room){$("history").classList.remove("hidden");const pw=Array.isArray(room.played_words)?room.played_words:[];$("historyCount").textContent="("+pw.length+")";$("historyWords").innerHTML=pw.length?pw.map(x=>'<span class="history-word p'+x.player+'">'+x.word.toUpperCase()+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';$("myScore")&&($("myScore").textContent=player===1?room.host_score:room.guest_score);$("otherScore")&&($("otherScore").textContent=player===1?room.guest_score:room.host_score);$("turn").classList.remove("word-preview");$("turn").textContent=room.status==="waiting"?"Väntar på spelare 2…":room.status==="finished"?(playerTimeMs(player)<=0?"Din tid tog slut":"Motståndarens tid tog slut"):room.current_player===player?"Din tur":"Motståndarens tur";updateTimers()}}
+function render(){if($("timers"))$("timers").classList.toggle("hidden",mode!=="online");if($("possibleCount"))$("possibleCount").textContent=remainingWords();const b=$("board");b.innerHTML="";letters.forEach((l,i)=>{const e=document.createElement("button");e.className="letter-piece p"+i+(i===0?" center":"")+(selected.includes(i)?" selected":"");e.textContent=l;e.disabled=mode==="online"&&(!room||room.status!=="playing"||room.current_player!==player);e.onclick=()=>{selected.includes(i)?selected=selected.filter(x=>x!==i):selected.push(i);render()};b.appendChild(e)});(()=>{const e=$("word");if(e)e.textContent=selected.map(i=>letters[i]).join("")})();if(mode==="solo"){$("history").classList.remove("hidden");$("historyCount").textContent="("+soloPlayed.length+")";$("historyWords").innerHTML=soloPlayed.length?soloPlayed.map((w,i)=>'<span class="history-word"><b>'+(i+1)+'.</b>&nbsp; '+w.toUpperCase()+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("turn").classList.add("word-preview");$("turn").textContent=selected.length?selected.map(i=>letters[i]).join(""):"Ditt ord";$("myScore")&&($("myScore").textContent=soloScore);$("otherScore")&&($("otherScore").textContent="–")}else if(room){$("history").classList.remove("hidden");const pw=Array.isArray(room.played_words)?room.played_words:[];$("historyCount").textContent="("+pw.length+")";$("historyWords").innerHTML=pw.length?pw.map(x=>'<span class="history-word p'+x.player+'">'+x.word.toUpperCase()+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("myScore")&&($("myScore").textContent=player===1?room.host_score:room.guest_score);$("otherScore")&&($("otherScore").textContent=player===1?room.guest_score:room.host_score);$("turn").classList.remove("word-preview");$("turn").textContent=room.status==="waiting"?"Väntar på spelare 2…":room.status==="finished"?(playerTimeMs(player)<=0?"Din tid tog slut":"Motståndarens tid tog slut"):room.current_player===player?"Din tur":"Motståndarens tur";updateTimers()}}
 function pickPuzzle(){const eligible=puzzles.filter(x=>Array.isArray(x.v)&&x.v.length>=20&&x.v.length<=30);puzzle=eligible[Math.floor(Math.random()*eligible.length)];return makeLetters(puzzle.l)} function localStart(){mode="solo";letters=pickPuzzle();soloScore=0;soloPlayed=[];selected=[];if($("turn")){$("turn").classList.add("word-preview");$("turn").textContent="Ditt ord"}showGame()}
 $("soloStart").onclick=localStart;
 $("onlineStart").onclick=()=>{$("mainMenu").classList.add("hidden");$("onlinePanel").classList.remove("hidden")};
