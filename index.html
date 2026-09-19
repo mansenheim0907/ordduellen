@@ -883,6 +883,12 @@ linear-gradient(90deg,transparent 0 8%,#ffffff12 8% 9%,transparent 9% 91%,#fffff
   display:none!important;
   background:none!important;
 }
+</style><style id="saol-board-loading-v40">
+#home .soft-choice:disabled,
+#home .soft-primary:disabled{
+  opacity:.65!important;
+  cursor:wait!important;
+}
 </style></head>
 <body><main class="app">
 <section id="home">
@@ -964,15 +970,37 @@ async function validateSaolWord(word){
     return null;
   }
 }
+async function fetchSaolBoard(boardLetters){
+  try{
+    const res=await fetch(SB_URL+"/functions/v1/saol?letters="+encodeURIComponent(boardLetters),{
+      headers:{apikey:SB_KEY}
+    });
+    if(!res.ok)return null;
+    const data=await res.json();
+    if(!data||!Array.isArray(data.solutions)||typeof data.count!=="number")return null;
+    return {count:data.count,solutions:data.solutions};
+  }catch(e){
+    return null;
+  }
+}
 function puzzleTotal(){return puzzle&&Array.isArray(puzzle.v)?puzzle.v.length:0} function showGame(){ $("home").classList.add("hidden");$("home").style.display="none";$("game").classList.remove("hidden");$("game").style.display="block";$("possibleCount").textContent=puzzle?puzzleTotal():"20+";if($("timers"))$("timers").classList.toggle("hidden",mode!=="online");render()}
 function syncPuzzleFromRoom(){
   if(!room)return;
-  puzzle=puzzles.find(x=>x.id===room.puzzle_id)||null;
-  if(!puzzle&&room.letters){
+  if(puzzle&&puzzle.id===room.puzzle_id&&Array.isArray(puzzle.v)&&puzzle.saolExact)return;
+  let base=puzzles.find(x=>x.id===room.puzzle_id)||null;
+  if(!base&&room.letters){
     const center=room.letters[0];
     const outer=[...room.letters.slice(1)].sort().join("");
-    puzzle=puzzles.find(x=>x.l[0]===center&&[...x.l.slice(1)].sort().join("")===outer)||null;
+    base=puzzles.find(x=>x.l[0]===center&&[...x.l.slice(1)].sort().join("")===outer)||null;
   }
+  puzzle=base;
+}
+async function hydratePuzzleFromBoard(boardLetters,basePuzzle){
+  const data=await fetchSaolBoard(boardLetters);
+  if(!data)return false;
+  const base=basePuzzle||puzzle||{id:room?.puzzle_id||0,l:boardLetters};
+  puzzle={...base,v:data.solutions,n:data.count,saolExact:true};
+  return true;
 }
 function scrollHistoryToLatest(){
   const box=$("history");
@@ -1030,15 +1058,40 @@ function updateTimers(){
 }
 setInterval(updateTimers,250);
 function render(){if($("timers"))$("timers").classList.toggle("hidden",mode!=="online");if($("possibleCount"))$("possibleCount").textContent=remainingWords();const b=$("board");b.innerHTML="";letters.forEach((l,i)=>{const e=document.createElement("button");e.className="letter-piece p"+i+(i===0?" center":"")+(selected.includes(i)?" selected":"");e.textContent=l;e.disabled=mode==="online"&&(!room||room.status!=="playing"||room.current_player!==player);e.onclick=()=>{selected.includes(i)?selected=selected.filter(x=>x!==i):selected.push(i);render()};b.appendChild(e)});(()=>{const e=$("word");if(e)e.textContent=selected.map(i=>letters[i]).join("")})();if(mode==="solo"){$("history").classList.remove("hidden");$("historyCount").textContent="("+soloPlayed.length+")";$("historyWords").innerHTML=soloPlayed.length?soloPlayed.map((w,i)=>'<span class="history-word"><b>'+(i+1)+'.</b>&nbsp; '+w.toUpperCase()+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("turn").classList.add("word-preview");$("turn").textContent=selected.length?selected.map(i=>letters[i]).join(""):"Ditt ord";$("myScore")&&($("myScore").textContent=soloScore);$("otherScore")&&($("otherScore").textContent="–")}else if(room){$("history").classList.remove("hidden");const pw=Array.isArray(room.played_words)?room.played_words:[];$("historyCount").textContent="("+pw.length+")";$("historyWords").innerHTML=pw.length?pw.map(x=>'<span class="history-word p'+x.player+'">'+x.word.toUpperCase()+'</span>').join(""):'<span class="no-words">Inga ord lagda ännu</span>';scrollHistoryToLatest();$("myScore")&&($("myScore").textContent=player===1?room.host_score:room.guest_score);$("otherScore")&&($("otherScore").textContent=player===1?room.guest_score:room.host_score);$("turn").classList.remove("word-preview");$("turn").textContent=room.status==="waiting"?"Väntar på spelare 2…":room.status==="finished"?(playerTimeMs(player)<=0?"Din tid tog slut":"Motståndarens tid tog slut"):room.current_player===player?"Din tur":"Motståndarens tur";updateTimers()}}
-function pickPuzzle(){const eligible=puzzles.filter(x=>Array.isArray(x.v)&&x.v.length>=20&&x.v.length<=30);puzzle=eligible[Math.floor(Math.random()*eligible.length)];return makeLetters(puzzle.l)} function localStart(){mode="solo";letters=pickPuzzle();soloScore=0;soloPlayed=[];selected=[];if($("turn")){$("turn").classList.add("word-preview");$("turn").textContent="Ditt ord"}showGame()}
+async function pickPuzzle(){
+  const candidates=[...puzzles].sort(()=>Math.random()-.5);
+  for(const base of candidates){
+    const candidateLetters=makeLetters(base.l);
+    const data=await fetchSaolBoard(candidateLetters.join(""));
+    if(data&&data.count>=20&&data.count<=30){
+      puzzle={...base,v:data.solutions,n:data.count,saolExact:true};
+      return candidateLetters;
+    }
+  }
+  return null;
+}
+async function localStart(){
+  mode="solo";
+  const btn=$("soloStart");
+  if(btn)btn.disabled=true;
+  const picked=await pickPuzzle();
+  if(btn)btn.disabled=false;
+  if(!picked){
+    if($("homeMsg"))$("homeMsg").textContent="Kunde inte hämta en SAOL-spelplan just nu.";
+    return;
+  }
+  letters=picked;soloScore=0;soloPlayed=[];selected=[];
+  if($("turn")){$("turn").classList.add("word-preview");$("turn").textContent="Ditt ord"}
+  showGame();
+}
 $("soloStart").onclick=localStart;
 $("onlineStart").onclick=()=>{$("mainMenu").classList.add("hidden");$("onlinePanel").classList.remove("hidden")};
 $("onlineBack").onclick=()=>{$("onlinePanel").classList.add("hidden");$("mainMenu").classList.remove("hidden");$("homeMsg").textContent=""};
 $("createdCode").onclick=async()=>{try{await navigator.clipboard.writeText(room.code);$("createdCode").textContent="KOPIERAD!" ;setTimeout(()=>$("createdCode").textContent=room.code,900)}catch(e){}};
 $("cancelRoom").onclick=()=>{if(channel){sb.removeChannel(channel);channel=null}$("createdRoom").classList.add("hidden");$("mainMenu").classList.remove("hidden")};
-async function createRoom(){mode="online";player=1;letters=pickPuzzle();const code=Math.random().toString(36).slice(2,7).toUpperCase();const {data,error}=await sb.from("ordduellen_rooms").insert({code,host_id:clientId,letters:letters.join(""),puzzle_id:puzzle.id,host_time_ms:TOTAL_TIME_MS,guest_time_ms:TOTAL_TIME_MS}).select().single();if(error){$("homeMsg").textContent="Kunde inte skapa rum.";return}room=data;$("onlinePanel").classList.add("hidden");$("createdRoom").classList.remove("hidden");$("createdCode").textContent=room.code;openRoom();render()}
-async function joinRoom(){const code=$("roomCode").value.trim().toUpperCase();const {data,error}=await sb.from("ordduellen_rooms").select("*").eq("code",code).single();if(error||!data){$("homeMsg").textContent="Rummet hittades inte.";return}if(data.guest_id){$("homeMsg").textContent="Rummet är fullt.";return}player=2;mode="online";const {data:updated,error:e}=await sb.from("ordduellen_rooms").update({guest_id:clientId,status:"playing",turn_started_at:new Date().toISOString()}).eq("id",data.id).is("guest_id",null).select().single();if(e||!updated){$("homeMsg").textContent="Kunde inte ansluta.";return}room=updated;letters=[...room.letters];syncPuzzleFromRoom();openRoom();showGame()}
-function openRoom(){letters=[...room.letters];syncPuzzleFromRoom();$("history").classList.remove("hidden");$("roomInfo").classList.remove("hidden");$("code").textContent=room.code;if(channel)sb.removeChannel(channel);channel=sb.channel("ordduellen-"+room.id).on("postgres_changes",{event:"UPDATE",schema:"public",table:"ordduellen_rooms",filter:"id=eq."+room.id},p=>{const wasMyTurn=room&&room.status==="playing"&&room.current_player===player;room=p.new;letters=[...room.letters];syncPuzzleFromRoom();selected=[];const isMyTurn=room.status==="playing"&&room.current_player===player;if(!wasMyTurn&&isMyTurn&&navigator.vibrate)navigator.vibrate([120,60,120]);if(room.status==="playing"&&!$("createdRoom").classList.contains("hidden")){$("createdRoom").classList.add("hidden");showGame()}else render()}).subscribe()}
+async function createRoom(){mode="online";player=1;$("homeMsg").textContent="Hämtar SAOL-spelplan…";const picked=await pickPuzzle();if(!picked){$("homeMsg").textContent="Kunde inte hämta en SAOL-spelplan just nu.";return}letters=picked;const code=Math.random().toString(36).slice(2,7).toUpperCase();const {data,error}=await sb.from("ordduellen_rooms").insert({code,host_id:clientId,letters:letters.join(""),puzzle_id:puzzle.id,host_time_ms:TOTAL_TIME_MS,guest_time_ms:TOTAL_TIME_MS}).select().single();if(error){$("homeMsg").textContent="Kunde inte skapa rum.";return}room=data;$("homeMsg").textContent="";$("onlinePanel").classList.add("hidden");$("createdRoom").classList.remove("hidden");$("createdCode").textContent=room.code;openRoom();render()}
+async function joinRoom(){const code=$("roomCode").value.trim().toUpperCase();const {data,error}=await sb.from("ordduellen_rooms").select("*").eq("code",code).single();if(error||!data){$("homeMsg").textContent="Rummet hittades inte.";return}if(data.guest_id){$("homeMsg").textContent="Rummet är fullt.";return}player=2;mode="online";room=data;letters=[...room.letters];syncPuzzleFromRoom();$("homeMsg").textContent="Verifierar spelplanen mot SAOL…";const hydrated=await hydratePuzzleFromBoard(room.letters,puzzle);if(!hydrated){$("homeMsg").textContent="Kunde inte verifiera spelplanen mot SAOL.";return}const {data:updated,error:e}=await sb.from("ordduellen_rooms").update({guest_id:clientId,status:"playing",turn_started_at:new Date().toISOString()}).eq("id",data.id).is("guest_id",null).select().single();if(e||!updated){$("homeMsg").textContent="Kunde inte ansluta.";return}room=updated;letters=[...room.letters];$("homeMsg").textContent="";openRoom();showGame()}
+function openRoom(){letters=[...room.letters];syncPuzzleFromRoom();$("history").classList.remove("hidden");$("roomInfo").classList.remove("hidden");$("code").textContent=room.code;if(channel)sb.removeChannel(channel);channel=sb.channel("ordduellen-"+room.id).on("postgres_changes",{event:"UPDATE",schema:"public",table:"ordduellen_rooms",filter:"id=eq."+room.id},p=>{const wasMyTurn=room&&room.status==="playing"&&room.current_player===player;room=p.new;letters=[...room.letters];selected=[];const isMyTurn=room.status==="playing"&&room.current_player===player;if(!wasMyTurn&&isMyTurn&&navigator.vibrate)navigator.vibrate([120,60,120]);if(room.status==="playing"&&!$("createdRoom").classList.contains("hidden")){$("createdRoom").classList.add("hidden");showGame()}else render()}).subscribe()}
 $("create").onclick=createRoom;$("join").onclick=joinRoom;$("shuffle").onclick=()=>{const outer=letters.slice(1);outer.sort(()=>Math.random()-.5);letters=[letters[0],...outer];selected=[];render()};$("clear").onclick=()=>{selected=[];$("msg").textContent="";render()};
 $("submit").onclick=async()=>{const w=selected.map(i=>letters[i]).join("").toLowerCase();const msg=$("msg");msg.classList.remove("error","success");if(!selected.includes(0)){msg.textContent="Mittenbokstaven måste vara med.";msg.classList.add("error");return}if(w.length<4){msg.textContent="Minst 4 bokstäver.";msg.classList.add("error");return}const saolValid=await validateSaolWord(w);if(saolValid===null){msg.textContent="Kunde inte verifiera ordet mot SAOL.";msg.classList.add("error");return}if(!saolValid){msg.textContent="Ej SAOL-grundform: "+w.toUpperCase();msg.classList.add("error");return}if(mode==="solo"){if(soloPlayed.includes(w)){$("msg").textContent="Det ordet är redan lagt!";$("msg").classList.add("error");return}soloPlayed.push(w);soloScore++;selected=[];$("msg").textContent=w.toUpperCase()+" registrerat";$("msg").classList.add("success");render();return}if(!room||room.current_player!==player)return;const played=Array.isArray(room.played_words)?room.played_words:[];if(played.some(x=>x.word.toLowerCase()===w)){$("msg").textContent="Det ordet är redan lagt!";$("msg").classList.add("error");return}const remaining=playerTimeMs(player);if(remaining<=0){msg.textContent="Din tid är slut.";msg.classList.add("error");expireCurrentTurn();return}const patch={last_word:w,current_player:player===1?2:1,turn_started_at:new Date().toISOString(),played_words:[...played,{word:w,player,at:new Date().toISOString()}]};if(player===1){patch.host_score=room.host_score+1;patch.host_time_ms=remaining}else{patch.guest_score=room.guest_score+1;patch.guest_time_ms=remaining};const {data,error}=await sb.from("ordduellen_rooms").update(patch).eq("id",room.id).eq("current_player",player).select().single();if(error){$("msg").textContent="Kunde inte lägga ord.";$("msg").classList.add("error");return}room=data;selected=[];$("msg").textContent=w.toUpperCase()+" lagt. Turen går över.";$("msg").classList.add("success");render()};
 $("back").onclick=()=>{if(channel){sb.removeChannel(channel);channel=null}room=null;selected=[];$("msg").textContent="";$("game").classList.add("hidden");$("game").style.display="none";$("home").classList.remove("hidden");$("home").style.display="block";$("roomInfo").classList.add("hidden");$("onlinePanel").classList.add("hidden");$("createdRoom").classList.add("hidden");$("mainMenu").classList.remove("hidden")};
