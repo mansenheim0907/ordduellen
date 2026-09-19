@@ -960,11 +960,8 @@ const $=id=>document.getElementById(id),uid=()=>crypto.randomUUID(),clientId=uid
 function makeLetters(s){const a=[...s],center=a.shift();a.sort(()=>Math.random()-.5);return[center,...a.slice(0,6)]}
 async function validateSaolWord(word){
   try{
-    const res=await fetch(SB_URL+"/functions/v1/saol?word="+encodeURIComponent(word),{
-      headers:{apikey:SB_KEY}
-    });
-    if(!res.ok)return null;
-    const data=await res.json();
+    const {data,error}=await sb.functions.invoke("saol",{body:{word}});
+    if(error)return null;
     return data&&data.valid===true;
   }catch(e){
     return null;
@@ -972,11 +969,8 @@ async function validateSaolWord(word){
 }
 async function fetchSaolBoard(boardLetters){
   try{
-    const res=await fetch(SB_URL+"/functions/v1/saol?letters="+encodeURIComponent(boardLetters),{
-      headers:{apikey:SB_KEY}
-    });
-    if(!res.ok)return null;
-    const data=await res.json();
+    const {data,error}=await sb.functions.invoke("saol",{body:{letters:boardLetters}});
+    if(error)return null;
     if(!data||!Array.isArray(data.solutions)||typeof data.count!=="number")return null;
     return {count:data.count,solutions:data.solutions};
   }catch(e){
