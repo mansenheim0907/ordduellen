@@ -1205,7 +1205,7 @@ html,body,.app{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script><script>
-const APP_VERSION="20260919-STRESS1";
+const APP_VERSION="20260919-HS10";
 async function ensureLatestVersion(){
   try{
     const res=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
@@ -1226,6 +1226,13 @@ const SB_URL="https://vihncukhitijhrvgvonw.supabase.co",SB_KEY="sb_publishable_c
 const puzzles=[{"id":101,"l":"AKTTFRI","v":["fait","fakir","farit","fart","fika","fira","frakt","fria","frita","ifatt","ikraft","kart","katt","kitta","kraft","krita","rakit","rakt","ratt","rikta","rita","taft","takt","trafik","trakt"]},{"id":102,"l":"ASKTTFR","v":["fars","fart","fast","frakt","fras","kart","kast","katt","krafs","kraft","kras","rakt","rask","rast","ratt","saft","skaft","skatt","skratt","stark","start","stat","tafs","taft","takt","trakt","trast","tsar"]},{"id":103,"l":"ASRNDEN","v":["andre","anse","dans","denna","deras","enda","ensa","nedan","nedrans","nesa","rand","rann","reda","redan","rena","rensa","resa","sade","sand","sann","sedan","sena","snar"]},{"id":104,"l":"ASTRNEN","v":["anse","ante","aster","ensa","etsa","nesa","rann","rast","rate","rena","renast","rensa","resa","reta","sann","sate","sena","senat","snar","stan","stare","stena","trans","trea","tsar"]},{"id":105,"l":"OKLBARN","v":["banko","baron","boka","bona","karbol","karbon","klon","klona","klor","kobra","kola","kolbarn","kona","kora","koral","koran","korn","kron","krona","oklar","oral","orka","orkan"]},{"id":106,"l":"OSKLBAN","v":["balsko","banko","bansko","boka","bona","kaos","klon","klona","kola","kona","kosa","loska","nosa","skol","skola","skona","slok","sloka","snok","snoka","sola","solka","sona"]},{"id":107,"l":"OSKLBAR","v":["balsko","boka","brosk","kaos","karbol","klor","kobra","kola","kora","koral","kors","korsa","kosa","loska","oklar","oral","orka","orsak","rosa","skol","skola","slok","sloka","sola","solka","sork","sorl","sorla"]},{"id":108,"l":"ÖRNSAKE","v":["knös","krön","kröna","köra","röka","röna","röse","skröna","skön","sköna","skör","snöa","snör","snöra","snöre","söka","sökar","sökare","söner","öken","önska","önske","öres","öskar"]},{"id":109,"l":"ÖGRNSAK","v":["angörs","grön","grönas","grönsak","grönska","göka","göra","knös","krön","kröna","köra","röka","rökgas","röna","skröna","skön","sköna","skör","snöa","snör","snöra","söka","sökar","ögna","önska","öskar"]},{"id":110,"l":"AMRATER","v":["area","armera","arta","errata","mara","martera","mata","matar","matare","mera","meta","metrar","rama","rata","rate","reta","tarm","team","tema","trea"]},{"id":111,"l":"AKRATER","v":["akta","akter","aktra","aktre","area","arrak","arta","errata","karat","karate","kareta","kart","karta","kartera","katarr","krater","raka","rakar","raket","rakt","rata","rate","reka","reta","teak","trea"]},{"id":112,"l":"AKMRTER","v":["akter","aktre","kamrer","karm","kart","keram","kram","krater","makt","mark","meka","mera","meta","metrar","raket","rakt","rate","reka","reta","tarm","teak","team","tema","trea"]},{"id":113,"l":"AKMRAER","v":["area","armera","arrak","kamera","kamrar","kamrer","karm","karma","keram","kram","krama","kramar","kramare","maka","makare","mara","mark","markera","meka","mera","raka","rakar","rama","reka"]},{"id":114,"l":"AKMRATR","v":["akta","aktra","arma","arrak","arta","kamrar","kamrat","karat","karm","karma","kart","karta","katarr","kram","krama","kramar","maka","makt","mara","mark","mata","matar","raka","rakar","rakt","rama","rata","tarm"]},{"id":115,"l":"ISKFTER","v":["etik","etisk","fiser","fisk","fiske","fris","frisk","frist","frites","iste","ister","kefir","kite","kreti","kris","krit","rike","rikt","risk","riste","rits","sikt","sikte","skift","skifte","skir","skit","skri","skrift","strike"]}];puzzles.forEach(x=>x.n=x.v.length);let puzzle=null;let letters=[],selected=[],room=null,player=1,channel=null,mode="solo",soloScore=0;const TOTAL_TIME_MS=300000,STRESS_TIME_MS=180000;let timeoutLock=false,stressEndsAt=0,stressTimerInterval=null,stressFinished=false;
 const $=id=>document.getElementById(id),uid=()=>crypto.randomUUID(),clientId=uid();let onlineSelected=false;
 const HIGHSCORE_KEY="ordduellenHighscores";
+const HIGHSCORE_RESET_KEY="ordduellenHighscoresReset20260919HS10";
+try{
+  if(localStorage.getItem(HIGHSCORE_RESET_KEY)!=="1"){
+    localStorage.removeItem(HIGHSCORE_KEY);
+    localStorage.setItem(HIGHSCORE_RESET_KEY,"1");
+  }
+}catch(_e){}
 function scoreFromProgress(found,total){return total>0&&found>=total?50:Math.max(0,found)}
 function getHighscores(){
   try{
@@ -1239,7 +1246,7 @@ function renderHighscoreList(listId,emptyId,kind){
   const scores=getHighscores()
     .filter(x=>(x.mode||"solo")===kind)
     .sort((a,b)=>b.score-a.score||a.remaining-b.remaining)
-    .slice(0,20);
+    .slice(0,10);
   list.innerHTML=scores.map((x,i)=>"<li><span>"+(i+1)+". "+(x.name||"---")+" · "+x.score+" poäng</span><span>"+x.remaining+" ord kvar</span></li>").join("");
   empty.classList.toggle("hidden",scores.length>0);
 }
@@ -1248,10 +1255,14 @@ function renderHighscores(){
   renderHighscoreList("stressHighscoreList","stressHighscoreEmpty","stress");
 }
 function saveHighscore(name,score,remaining,kind="solo"){
+  if(score<=0)return;
   const scores=getHighscores();
   scores.push({name,score,remaining,mode:kind,at:new Date().toISOString()});
-  scores.sort((a,b)=>b.score-a.score||a.remaining-b.remaining);
-  try{localStorage.setItem(HIGHSCORE_KEY,JSON.stringify(scores.slice(0,80)))}catch(_e){}
+  const trimmed=["solo","stress"].flatMap(type=>scores
+    .filter(x=>(x.mode||"solo")===type)
+    .sort((a,b)=>b.score-a.score||a.remaining-b.remaining)
+    .slice(0,10));
+  try{localStorage.setItem(HIGHSCORE_KEY,JSON.stringify(trimmed))}catch(_e){}
   renderHighscores();
 }
 renderHighscores();
@@ -1717,14 +1728,14 @@ function finishSoloRound(timeExpired=false){
   const total=puzzleTotal();
   const found=Math.max(0,total-remaining);
   const score=resultMode==="stress"?found:scoreFromProgress(found,total);
-  pendingSoloResult={score,remaining,mode:resultMode};
+  pendingSoloResult=score>0?{score,remaining,mode:resultMode}:null;
   $("resultTitle").textContent=timeExpired?"Tiden är slut!":"Rundan avslutad";
   $("resultText").textContent=(resultMode==="stress"?"Du hittade ":"Du fick ")+score+(resultMode==="stress"?" ord på 3 minuter.":" poäng. "+remaining+" ord kvar.");
-  $("highscoreNameWrap").classList.remove("hidden");
-  $("resultHome").classList.add("hidden");
+  $("highscoreNameWrap").classList.toggle("hidden",score<=0);
+  $("resultHome").classList.toggle("hidden",score>0);
   $("highscoreName").value="";
   $("resultModal").classList.remove("hidden");
-  setTimeout(()=>$("highscoreName")?.focus(),50);
+  if(score>0)setTimeout(()=>$("highscoreName")?.focus(),50);
 }
 $("finishSolo").onclick=()=>finishSoloRound(false);
 $("highscoreName").addEventListener("input",e=>{
